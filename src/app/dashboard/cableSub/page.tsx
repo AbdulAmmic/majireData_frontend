@@ -1,32 +1,31 @@
 "use client";
 
+import { API_BASE_URL } from "@/config";
+
 import { useEffect, useMemo, useState } from "react";
 import Sidebar from "@/components/sidebar";
 import Header from "@/components/header";
 import Link from "next/link";
-import { 
-  ChevronRight, 
-  Loader2, 
-  Tv, 
-  Shield, 
+import {
+  ChevronRight,
+  Loader2,
+  Tv,
+  Shield,
   CreditCard,
   ArrowRight,
-  TrendingUp,
-  BadgeCheck,
-  Sparkles,
   CheckCircle,
   Receipt,
   Calendar,
   Users,
   Film,
-  Music,
-  Globe,
   Clock,
   AlertCircle,
   Zap,
   Star,
-  Gift
+  Gift,
+  Globe
 } from "lucide-react";
+import MessageModal from "@/components/messageModal";
 
 type ProviderKey = "dstv" | "gotv" | "startimes" | "showmax";
 type PackageTypeKey = "compact" | "premium" | "basic" | "bouquet";
@@ -40,30 +39,32 @@ type CablePackage = {
   channels: number;
   popular?: boolean;
   features: string[];
+  provider?: string;
+  providerKey?: string;
 };
 
 const PROVIDERS: { key: ProviderKey; name: string; color: string; icon: React.ReactNode }[] = [
-  { 
-    key: "dstv", 
-    name: "DStv", 
+  {
+    key: "dstv",
+    name: "DStv",
     color: "bg-red-500",
     icon: <Tv className="h-5 w-5" />
   },
-  { 
-    key: "gotv", 
-    name: "GOtv", 
+  {
+    key: "gotv",
+    name: "GOtv",
     color: "bg-blue-500",
     icon: <Tv className="h-5 w-5" />
   },
-  { 
-    key: "startimes", 
-    name: "StarTimes", 
+  {
+    key: "startimes",
+    name: "StarTimes",
     color: "bg-orange-500",
     icon: <Tv className="h-5 w-5" />
   },
-  { 
-    key: "showmax", 
-    name: "Showmax", 
+  {
+    key: "showmax",
+    name: "Showmax",
     color: "bg-purple-500",
     icon: <Film className="h-5 w-5" />
   },
@@ -90,6 +91,9 @@ const PACKAGE_TYPES: Record<ProviderKey, { key: PackageTypeKey; name: string; de
     { key: "premium", name: "Premium", description: "Premium streaming with downloads" },
     { key: "bouquet", name: "Bundles", description: "Combined packages" },
   ],
+  // Fallbacks if needed
+  // @ts-ignore
+  other: []
 };
 
 const DURATION_OPTIONS = [
@@ -100,230 +104,6 @@ const DURATION_OPTIONS = [
   { label: "1 Year", value: "12" },
 ];
 
-const DEMO_PACKAGES: Record<ProviderKey, Record<PackageTypeKey, CablePackage[]>> = {
-  dstv: {
-      compact: [
-          {
-              id: "dstv-compact-monthly",
-              name: "DStv Compact",
-              amount: 12500,
-              duration: "1 Month",
-              description: "Popular entertainment package",
-              channels: 100,
-              popular: true,
-              features: ["SuperSport Select", "M-Net", "Discovery", "Nat Geo"]
-          },
-          {
-              id: "dstv-compact-quarterly",
-              name: "DStv Compact",
-              amount: 35000,
-              duration: "3 Months",
-              description: "Save ₦2,500 with quarterly plan",
-              channels: 100,
-              features: ["SuperSport Select", "M-Net", "Discovery", "Nat Geo"]
-          },
-      ],
-      premium: [
-          {
-              id: "dstv-premium-monthly",
-              name: "DStv Premium",
-              amount: 21000,
-              duration: "1 Month",
-              description: "Complete package with all channels",
-              channels: 180,
-              features: ["All SuperSport", "All M-Net", "BoxOffice", "Explora"]
-          },
-          {
-              id: "dstv-premium-annual",
-              name: "DStv Premium",
-              amount: 220000,
-              duration: "1 Year",
-              description: "Best value - Save ₦32,000",
-              channels: 180,
-              popular: true,
-              features: ["All SuperSport", "All M-Net", "BoxOffice", "Explora"]
-          },
-      ],
-      bouquet: [
-          {
-              id: "dstv-confam",
-              name: "DStv Confam",
-              amount: 6300,
-              duration: "1 Month",
-              description: "Family entertainment",
-              channels: 65,
-              features: ["Select SuperSport", "Family Movies", "Kids Channels"]
-          },
-          {
-              id: "dstv-yanga",
-              name: "DStv Yanga",
-              amount: 4100,
-              duration: "1 Month",
-              description: "Budget-friendly option",
-              channels: 45,
-              features: ["Local Channels", "Select Sports", "Entertainment"]
-          },
-      ],
-      basic: []
-  },
-  gotv: {
-      basic: [
-          {
-              id: "gotv-jinja",
-              name: "GOtv Jinja",
-              amount: 2200,
-              duration: "1 Month",
-              description: "Essential digital entertainment",
-              channels: 40,
-              features: ["Local Channels", "News", "Entertainment"]
-          },
-          {
-              id: "gotv-jinja-quarterly",
-              name: "GOtv Jinja",
-              amount: 6000,
-              duration: "3 Months",
-              description: "Save ₦600 quarterly",
-              channels: 40,
-              features: ["Local Channels", "News", "Entertainment"]
-          },
-      ],
-      compact: [
-          {
-              id: "gotv-max",
-              name: "GOtv Max",
-              amount: 4150,
-              duration: "1 Month",
-              description: "Popular package with sports",
-              channels: 70,
-              popular: true,
-              features: ["SuperSport Select", "M-Net", "Novela", "Kids"]
-          },
-          {
-              id: "gotv-max-annual",
-              name: "GOtv Max",
-              amount: 41500,
-              duration: "1 Year",
-              description: "Get 1 month free",
-              channels: 70,
-              features: ["SuperSport Select", "M-Net", "Novela", "Kids"]
-          },
-      ],
-      premium: [
-          {
-              id: "gotv-supa",
-              name: "GOtv Supa",
-              amount: 5900,
-              duration: "1 Month",
-              description: "Complete entertainment",
-              channels: 90,
-              features: ["All SuperSport", "M-Net Movies", "BoxOffice", "Explora"]
-          },
-      ],
-      bouquet: []
-  },
-  startimes: {
-      basic: [
-          {
-              id: "startimes-nova",
-              name: "Nova",
-              amount: 1300,
-              duration: "1 Month",
-              description: "Basic digital package",
-              channels: 30,
-              features: ["Local Channels", "News", "Entertainment"]
-          },
-      ],
-      compact: [
-          {
-              id: "startimes-basic",
-              name: "Basic",
-              amount: 2600,
-              duration: "1 Month",
-              description: "Popular sports & movies",
-              channels: 60,
-              popular: true,
-              features: ["Sports", "Movies", "Series", "Documentaries"]
-          },
-          {
-              id: "startimes-basic-annual",
-              name: "Basic",
-              amount: 26000,
-              duration: "1 Year",
-              description: "Annual subscription",
-              channels: 60,
-              features: ["Sports", "Movies", "Series", "Documentaries"]
-          },
-      ],
-      premium: [
-          {
-              id: "startimes-classic",
-              name: "Classic",
-              amount: 4500,
-              duration: "1 Month",
-              description: "Complete package",
-              channels: 100,
-              features: ["All Sports", "Premium Movies", "Kids", "Documentaries"]
-          },
-          {
-              id: "startimes-smart",
-              name: "Smart",
-              amount: 7200,
-              duration: "1 Month",
-              description: "Premium with extra channels",
-              channels: 120,
-              features: ["All Sports", "Premium Movies", "Chinese Channels", "Kids"]
-          },
-      ],
-      bouquet: []
-  },
-  showmax: {
-      basic: [
-          {
-              id: "showmax-mobile",
-              name: "Showmax Mobile",
-              amount: 1200,
-              duration: "1 Month",
-              description: "Stream on 1 mobile device",
-              channels: 0,
-              features: ["Mobile Only", "Local & Int'l Content", "Download Option"]
-          },
-      ],
-      premium: [
-          {
-              id: "showmax-premium",
-              name: "Showmax Premium",
-              amount: 2900,
-              duration: "1 Month",
-              description: "Stream on 2 devices",
-              channels: 0,
-              popular: true,
-              features: ["2 Devices", "HD Streaming", "Downloads", "Live Sports"]
-          },
-          {
-              id: "showmax-premium-annual",
-              name: "Showmax Premium",
-              amount: 29000,
-              duration: "1 Year",
-              description: "Save ₦5,800 annually",
-              channels: 0,
-              features: ["2 Devices", "HD Streaming", "Downloads", "Live Sports"]
-          },
-      ],
-      bouquet: [
-          {
-              id: "showmax-pro",
-              name: "Showmax Pro",
-              amount: 4400,
-              duration: "1 Month",
-              description: "Includes live TV channels",
-              channels: 20,
-              features: ["Live TV", "Premier League", "2 Devices", "Downloads"]
-          },
-      ],
-      compact: []
-  },
-};
-
 function formatNaira(amount: number) {
   return `₦${amount.toLocaleString("en-NG")}`;
 }
@@ -331,6 +111,20 @@ function formatNaira(amount: number) {
 export default function CableSubscriptionPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeView, setActiveView] = useState("cable");
+
+  // Custom Modal State
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{
+    title: string;
+    message: string;
+    type: "success" | "error" | "warning";
+  }>({ title: "", message: "", type: "success" });
+
+  const showMessage = (title: string, message: string, type: "success" | "error" | "warning" = "success") => {
+    setModalConfig({ title, message, type });
+    setModalOpen(true);
+  };
+
   const [provider, setProvider] = useState<ProviderKey>("dstv");
   const [packageType, setPackageType] = useState<PackageTypeKey>("compact");
   const [selectedPackageId, setSelectedPackageId] = useState<string>("");
@@ -342,18 +136,63 @@ export default function CableSubscriptionPage() {
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const availablePackages = useMemo(() => 
-    DEMO_PACKAGES[provider]?.[packageType] || [], 
-    [provider, packageType]
-  );
+  const [fetchedPackages, setFetchedPackages] = useState<CablePackage[]>([]);
+  const [loadingPackages, setLoadingPackages] = useState(false);
 
-  const selectedPackage = useMemo(() => 
-    availablePackages.find((p) => p.id === selectedPackageId) || null, 
+  // Fetch packages on mount
+  useEffect(() => {
+    async function fetchPackages() {
+      setLoadingPackages(true);
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const res = await fetch(`${API_BASE_URL}/api/services/plans?service=CABLE`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        const body = await res.json();
+        if (res.ok) {
+          // Map backend response to CablePackage
+          const mapped: CablePackage[] = body.data.map((item: any) => ({
+            id: item.id,
+            name: item.name,
+            amount: item.amount,
+            duration: "1 Month", // Default
+            description: item.name,
+            channels: 0, // Not available from simplified endpoint
+            features: [],
+            provider: item.cable_provider // Store provider ID to filter key mapping
+          }));
+          // Map provider IDs (1,2,3) to keys (gotv, dstv, startimes)
+          const refined = mapped.map(p => {
+            if (p.provider === "1") p.providerKey = "gotv";
+            else if (p.provider === "2") p.providerKey = "dstv";
+            else if (p.provider === "3") p.providerKey = "startimes";
+            else p.providerKey = "other";
+            return p;
+          });
+          setFetchedPackages(refined);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingPackages(false);
+      }
+    }
+    fetchPackages();
+  }, []);
+
+  const availablePackages = useMemo(() => {
+    return fetchedPackages.filter((pkg: any) => pkg.providerKey === provider);
+  }, [provider, fetchedPackages]);
+
+  const selectedPackage = useMemo(() =>
+    availablePackages.find((p) => p.id === selectedPackageId) || null,
     [availablePackages, selectedPackageId]
   );
 
-  const packageTypes = useMemo(() => 
-    PACKAGE_TYPES[provider] || [], 
+  const packageTypes = useMemo(() =>
+    PACKAGE_TYPES[provider] || [],
     [provider]
   );
 
@@ -365,7 +204,7 @@ export default function CableSubscriptionPage() {
 
   const validate = () => {
     const e: Record<string, string> = {};
-    
+
     if (!smartCardNumber) {
       e.smartCardNumber = "Smart card/IUC number is required";
     } else if (!/^\d{10,14}$/.test(smartCardNumber.replace(/\s+/g, ""))) {
@@ -387,18 +226,6 @@ export default function CableSubscriptionPage() {
 
     setErrors(e);
     return Object.keys(e).length === 0;
-  };
-
-  const handleSubmit = async () => {
-    if (!validate()) return;
-    
-    setSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
-      alert(`Cable subscription successful! ${selectedPackage?.name} activated for ${smartCardNumber}`);
-      setSubmitting(false);
-      setPin("");
-    }, 1500);
   };
 
   const calculateTotalAmount = () => {
@@ -423,24 +250,65 @@ export default function CableSubscriptionPage() {
     return regularTotal - discountedTotal;
   };
 
+  const handleSubmit = async () => {
+    if (!validate()) return;
+
+    setSubmitting(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE_URL}/api/services/cable/subscribe`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          cable_name: provider,
+          smart_card_number: smartCardNumber,
+          package: selectedPackage?.id || "",
+          amount: calculateTotalAmount(),
+          phone: customerPhone,
+          transaction_pin: pin
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Subscription failed");
+
+      showMessage(
+        "Subscription Successful",
+        `Cable subscription successful! Reference: ${data.data.purchase_id}`,
+        "success"
+      );
+      setPin("");
+      // Reset form or redirect
+    } catch (err: any) {
+      showMessage("Subscription Failed", err.message, "error");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-amber-50/30">
-      {/* SIDEBAR */}
+      <MessageModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        type={modalConfig.type}
+      />
+
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} activeView={activeView} setActiveView={setActiveView} />
 
-      {/* OVERLAY FOR MOBILE */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* MAIN CONTENT */}
       <div className="flex-1 flex flex-col lg:pl-64">
-        {/* HEADER */}
         <Header setSidebarOpen={setSidebarOpen} />
 
-        {/* CONTENT */}
         <main className="flex-1 p-4 md:p-6 max-w-7xl mx-auto w-full">
-          {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
             <Link href="/dashboard" className="hover:text-amber-600 transition-colors">
               Dashboard
@@ -449,7 +317,6 @@ export default function CableSubscriptionPage() {
             <span className="text-gray-700 font-medium">Cable Subscription</span>
           </div>
 
-          {/* Header Section */}
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-3">
               <div className="p-2 bg-amber-100 rounded-lg">
@@ -462,10 +329,9 @@ export default function CableSubscriptionPage() {
             </div>
           </div>
 
-          {/* Main Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Panel - Form */}
             <div className="lg:col-span-2 space-y-6">
+
               {/* Provider Selection */}
               <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Select Provider</h2>
@@ -474,11 +340,10 @@ export default function CableSubscriptionPage() {
                     <button
                       key={p.key}
                       onClick={() => setProvider(p.key)}
-                      className={`flex flex-col items-center p-4 rounded-xl border-2 transition-all duration-200 ${
-                        provider === p.key
-                          ? "border-amber-500 bg-amber-50"
-                          : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                      }`}
+                      className={`flex flex-col items-center p-4 rounded-xl border-2 transition-all duration-200 ${provider === p.key
+                        ? "border-amber-500 bg-amber-50"
+                        : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                        }`}
                     >
                       <div className={`h-10 w-10 rounded-full ${p.color} flex items-center justify-center mb-2 text-white`}>
                         {p.icon}
@@ -497,16 +362,14 @@ export default function CableSubscriptionPage() {
                     <button
                       key={type.key}
                       onClick={() => setPackageType(type.key)}
-                      className={`flex flex-col items-start p-4 rounded-xl border-2 text-left transition-all duration-200 ${
-                        packageType === type.key
-                          ? "border-amber-500 bg-amber-50"
-                          : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                      }`}
+                      className={`flex flex-col items-start p-4 rounded-xl border-2 text-left transition-all duration-200 ${packageType === type.key
+                        ? "border-amber-500 bg-amber-50"
+                        : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                        }`}
                     >
                       <div className="flex items-center gap-2 mb-2">
-                        <div className={`p-2 rounded-lg ${
-                          packageType === type.key ? "bg-amber-100 text-amber-600" : "bg-gray-100 text-gray-600"
-                        }`}>
+                        <div className={`p-2 rounded-lg ${packageType === type.key ? "bg-amber-100 text-amber-600" : "bg-gray-100 text-gray-600"
+                          }`}>
                           <Star className="h-4 w-4" />
                         </div>
                         <span className="font-semibold text-gray-900">{type.name}</span>
@@ -523,17 +386,16 @@ export default function CableSubscriptionPage() {
                   <h2 className="text-lg font-semibold text-gray-900">Available Packages</h2>
                   <span className="text-sm text-gray-500">{availablePackages.length} packages</span>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {availablePackages.map((pkg) => (
                     <button
                       key={pkg.id}
                       onClick={() => setSelectedPackageId(pkg.id)}
-                      className={`p-5 rounded-xl border-2 transition-all duration-200 text-left hover:scale-[1.01] ${
-                        selectedPackageId === pkg.id
-                          ? "border-amber-500 bg-amber-50"
-                          : "border-gray-200 hover:border-amber-300"
-                      }`}
+                      className={`p-5 rounded-xl border-2 transition-all duration-200 text-left hover:scale-[1.01] ${selectedPackageId === pkg.id
+                        ? "border-amber-500 bg-amber-50"
+                        : "border-gray-200 hover:border-amber-300"
+                        }`}
                     >
                       <div className="flex justify-between items-start mb-3">
                         <div>
@@ -546,7 +408,7 @@ export default function CableSubscriptionPage() {
                           </span>
                         )}
                       </div>
-                      
+
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2 text-sm text-gray-600">
                           <Users className="h-4 w-4" />
@@ -606,11 +468,10 @@ export default function CableSubscriptionPage() {
                         <button
                           key={option.value}
                           onClick={() => setDuration(option.value)}
-                          className={`py-3 px-4 rounded-lg border-2 transition-all duration-200 ${
-                            duration === option.value
-                              ? "border-amber-500 bg-amber-50 text-amber-700 font-medium"
-                              : "border-gray-200 hover:border-gray-300 text-gray-700"
-                          }`}
+                          className={`py-3 px-4 rounded-lg border-2 transition-all duration-200 ${duration === option.value
+                            ? "border-amber-500 bg-amber-50 text-amber-700 font-medium"
+                            : "border-gray-200 hover:border-gray-300 text-gray-700"
+                            }`}
                         >
                           {option.label}
                         </button>
@@ -626,9 +487,8 @@ export default function CableSubscriptionPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Smart Card / IUC Number <span className="text-red-500">*</span>
                     </label>
-                    <div className={`flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors ${
-                      errors.smartCardNumber ? "border-red-300" : "border-gray-300 focus-within:border-amber-500"
-                    }`}>
+                    <div className={`flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors ${errors.smartCardNumber ? "border-red-300" : "border-gray-300 focus-within:border-amber-500"
+                      }`}>
                       <CreditCard className="h-5 w-5 text-gray-400" />
                       <input
                         type="text"
@@ -658,9 +518,8 @@ export default function CableSubscriptionPage() {
                         value={customerName}
                         onChange={(e) => setCustomerName(e.target.value)}
                         placeholder="Enter customer name"
-                        className={`w-full rounded-lg border px-4 py-3 outline-none transition-colors ${
-                          errors.customerName ? "border-red-300" : "border-gray-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-200"
-                        }`}
+                        className={`w-full rounded-lg border px-4 py-3 outline-none transition-colors ${errors.customerName ? "border-red-300" : "border-gray-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-200"
+                          }`}
                       />
                       {errors.customerName && (
                         <p className="mt-2 text-sm text-red-600">{errors.customerName}</p>
@@ -670,9 +529,8 @@ export default function CableSubscriptionPage() {
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Customer Phone <span className="text-red-500">*</span>
                       </label>
-                      <div className={`flex items-center gap-3 rounded-lg border px-4 py-3 transition-colors ${
-                        errors.customerPhone ? "border-red-300" : "border-gray-300 focus-within:border-amber-500"
-                      }`}>
+                      <div className={`flex items-center gap-3 rounded-lg border px-4 py-3 transition-colors ${errors.customerPhone ? "border-red-300" : "border-gray-300 focus-within:border-amber-500"
+                        }`}>
                         <Users className="h-5 w-5 text-gray-400" />
                         <input
                           type="tel"
@@ -693,9 +551,8 @@ export default function CableSubscriptionPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Transaction PIN <span className="text-red-500">*</span>
                     </label>
-                    <div className={`relative rounded-xl border px-4 py-3 transition-colors ${
-                      errors.pin ? "border-red-300" : "border-gray-300 focus-within:border-amber-500"
-                    }`}>
+                    <div className={`relative rounded-xl border px-4 py-3 transition-colors ${errors.pin ? "border-red-300" : "border-gray-300 focus-within:border-amber-500"
+                      }`}>
                       <Shield className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                       <input
                         type="password"
@@ -744,7 +601,7 @@ export default function CableSubscriptionPage() {
                     <Receipt className="h-5 w-5" />
                     Order Summary
                   </h2>
-                  
+
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <span className="text-gray-300">Provider</span>

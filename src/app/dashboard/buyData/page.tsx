@@ -1,17 +1,19 @@
 "use client";
 
+import { API_BASE_URL } from "@/config";
+
 import { useEffect, useMemo, useState } from "react";
 import Sidebar from "@/components/sidebar";
 import Header from "@/components/header";
 import Link from "next/link";
-import { 
-  ChevronRight, 
-  Loader2, 
-  Wifi, 
-  Shield, 
-  Phone, 
-  Zap, 
-  CheckCircle, 
+import {
+  ChevronRight,
+  Loader2,
+  Wifi,
+  Shield,
+  Phone,
+  Zap,
+  CheckCircle,
   CreditCard,
   ArrowRight,
   TrendingUp,
@@ -39,100 +41,49 @@ const NETWORKS: { key: NetworkKey; name: string; color: string }[] = [
 ];
 
 const PLAN_TYPES: { key: PlanTypeKey; name: string; description: string; icon: React.ReactNode }[] = [
-  { 
-    key: "sme", 
-    name: "SME", 
+  {
+    key: "sme",
+    name: "SME",
     description: "Best rates for individuals & small businesses",
     icon: <TrendingUp className="h-4 w-4" />
   },
-  { 
-    key: "gifting", 
-    name: "Gifting", 
+  {
+    key: "gifting",
+    name: "Gifting",
     description: "Share data with friends & family",
     icon: <Sparkles className="h-4 w-4" />
   },
-  { 
-    key: "corporate", 
-    name: "Corporate", 
+  {
+    key: "corporate",
+    name: "Corporate",
     description: "Bulk plans for organizations",
     icon: <BadgeCheck className="h-4 w-4" />
   },
 ];
 
-const DEMO_PLANS: Record<NetworkKey, Record<PlanTypeKey, DataPlan[]>> = {
-  mtn: {
-    sme: [
-      { id: "mtn-sme-500mb", label: "500MB", amount: 200, size: "500MB", validity: "30 Days" },
-      { id: "mtn-sme-1gb", label: "1GB", amount: 350, size: "1GB", validity: "30 Days", popular: true },
-      { id: "mtn-sme-2gb", label: "2GB", amount: 700, size: "2GB", validity: "30 Days" },
-      { id: "mtn-sme-3gb", label: "3GB", amount: 950, size: "3GB", validity: "30 Days" },
-      { id: "mtn-sme-5gb", label: "5GB", amount: 1500, size: "5GB", validity: "30 Days" },
-    ],
-    gifting: [
-      { id: "mtn-gift-1gb", label: "1GB", amount: 400, size: "1GB", validity: "7 Days" },
-      { id: "mtn-gift-2gb", label: "2GB", amount: 800, size: "2GB", validity: "14 Days" },
-      { id: "mtn-gift-5gb", label: "5GB", amount: 1800, size: "5GB", validity: "30 Days", popular: true },
-    ],
-    corporate: [
-      { id: "mtn-corp-10gb", label: "10GB", amount: 3300, size: "10GB", validity: "30 Days" },
-      { id: "mtn-corp-20gb", label: "20GB", amount: 6200, size: "20GB", validity: "30 Days", popular: true },
-      { id: "mtn-corp-50gb", label: "50GB", amount: 14500, size: "50GB", validity: "30 Days" },
-    ],
-  },
-  airtel: {
-    sme: [
-      { id: "airtel-sme-1gb", label: "1GB", amount: 380, size: "1GB", validity: "30 Days", popular: true },
-      { id: "airtel-sme-2gb", label: "2GB", amount: 760, size: "2GB", validity: "30 Days" },
-      { id: "airtel-sme-5gb", label: "5GB", amount: 1800, size: "5GB", validity: "30 Days" },
-    ],
-    gifting: [
-      { id: "airtel-gift-1.5gb", label: "1.5GB", amount: 650, size: "1.5GB", validity: "14 Days" },
-      { id: "airtel-gift-3gb", label: "3GB", amount: 1200, size: "3GB", validity: "30 Days", popular: true },
-    ],
-    corporate: [
-      { id: "airtel-corp-10gb", label: "10GB", amount: 3500, size: "10GB", validity: "30 Days" },
-      { id: "airtel-corp-25gb", label: "25GB", amount: 8200, size: "25GB", validity: "30 Days", popular: true },
-    ],
-  },
-  glo: {
-    sme: [
-      { id: "glo-sme-1gb", label: "1GB", amount: 360, size: "1GB", validity: "30 Days", popular: true },
-      { id: "glo-sme-2.5gb", label: "2.5GB", amount: 780, size: "2.5GB", validity: "30 Days" },
-      { id: "glo-sme-5gb", label: "5GB", amount: 1500, size: "5GB", validity: "30 Days" },
-    ],
-    gifting: [
-      { id: "glo-gift-2gb", label: "2GB", amount: 780, size: "2GB", validity: "30 Days" },
-      { id: "glo-gift-4.5gb", label: "4.5GB", amount: 1500, size: "4.5GB", validity: "30 Days", popular: true },
-    ],
-    corporate: [
-      { id: "glo-corp-10gb", label: "10GB", amount: 3200, size: "10GB", validity: "30 Days", popular: true },
-      { id: "glo-corp-20gb", label: "20GB", amount: 6000, size: "20GB", validity: "30 Days" },
-    ],
-  },
-  "9mobile": {
-    sme: [
-      { id: "9m-sme-1gb", label: "1GB", amount: 420, size: "1GB", validity: "30 Days", popular: true },
-      { id: "9m-sme-2gb", label: "2GB", amount: 850, size: "2GB", validity: "30 Days" },
-      { id: "9m-sme-5gb", label: "5GB", amount: 1900, size: "5GB", validity: "30 Days" },
-    ],
-    gifting: [
-      { id: "9m-gift-2gb", label: "2GB", amount: 850, size: "2GB", validity: "30 Days", popular: true },
-      { id: "9m-gift-3.5gb", label: "3.5GB", amount: 1400, size: "3.5GB", validity: "30 Days" },
-    ],
-    corporate: [
-      { id: "9m-corp-10gb", label: "10GB", amount: 3800, size: "10GB", validity: "30 Days" },
-      { id: "9m-corp-15gb", label: "15GB", amount: 5500, size: "15GB", validity: "30 Days", popular: true },
-    ],
-  },
-};
-
 function formatNaira(amount: number) {
   return `₦${amount.toLocaleString("en-NG")}`;
 }
 
+import MessageModal from "@/components/messageModal";
+
 export default function BuyDataPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeView, setActiveView] = useState("data");
+
+  // Custom Modal State
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{
+    title: string;
+    message: string;
+    type: "success" | "error" | "warning";
+  }>({ title: "", message: "", type: "success" });
+
+  const showMessage = (title: string, message: string, type: "success" | "error" | "warning" = "success") => {
+    setModalConfig({ title, message, type });
+    setModalOpen(true);
+  };
+
   const [network, setNetwork] = useState<NetworkKey>("mtn");
   const [planType, setPlanType] = useState<PlanTypeKey>("sme");
   const [dataPlanId, setDataPlanId] = useState<string>("");
@@ -142,8 +93,73 @@ export default function BuyDataPage() {
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const plans = useMemo(() => DEMO_PLANS[network][planType] ?? [], [network, planType]);
+  // State for plans fetched from backend
+  const [fetchedPlans, setFetchedPlans] = useState<DataPlan[]>([]);
+  const [loadingPlans, setLoadingPlans] = useState<boolean>(true);
+
+  // Filter plans based on selected network and planType
+  const plans = useMemo(() => {
+    // Filter by network
+    // The backend plan ID convention is "network_plan-details", e.g. "mtn_sme-1gb"
+    // Our network keys are "mtn", "airtel", "glo", "9mobile"
+    // Our plan types are "sme", "gifting", "corporate"
+
+    return fetchedPlans.filter(p => {
+      // Check network
+      if (!p.id.toLowerCase().startsWith(network.toLowerCase())) return false;
+
+      // Check plan type
+      if (planType === "sme" && p.id.toLowerCase().includes("sme")) return true;
+      if (planType === "gifting" && (p.id.toLowerCase().includes("gift") || !p.id.toLowerCase().includes("sme"))) return true; // Falback to gifting if not sme or corporate
+      if (planType === "corporate" && p.id.toLowerCase().includes("corp")) return true;
+
+      return false;
+    });
+  }, [fetchedPlans, network, planType]);
+
   const selectedPlan = useMemo(() => plans.find((p) => p.id === dataPlanId) || null, [plans, dataPlanId]);
+
+  useEffect(() => {
+    async function fetchPlans() {
+      setLoadingPlans(true);
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const res = await fetch(`${API_BASE_URL}/api/services/plans?service=DATA`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        const body = await res.json();
+        if (res.ok) {
+          // Map backend response to DataPlan
+          const mapped: DataPlan[] = body.data.map((item: any) => ({
+            id: item.id,
+            label: item.name, // Or parse the size from name
+            amount: item.amount, // This comes as a number (Naira) from backend if we used kobo_to_naira? No, my backend returns number.
+            size: item.name, // Temporary: Need better parsing of size
+            validity: "30 Days", // Hardcoded for now, or fetch from item if available
+            popular: false
+          }));
+          // We should parse "size" more intelligently if possible. 
+          // e.g. "MTN SME 1GB" -> "1GB"
+          const refined = mapped.map(p => {
+            const match = p.label.match(/(\d+\.?\d*)(MB|GB|TB)/i);
+            if (match) {
+              p.size = match[0].toUpperCase();
+            }
+            return p;
+          });
+          setFetchedPlans(refined);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingPlans(false);
+      }
+    }
+    fetchPlans();
+  }, []);
+
 
   useEffect(() => {
     if (plans.length > 0 && !plans.find(p => p.id === dataPlanId)) {
@@ -167,16 +183,65 @@ export default function BuyDataPage() {
   const handleSubmit = async () => {
     if (!validate()) return;
     setSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
-      alert(`Data purchase successful! ${selectedPlan?.size} for ${phoneNumber}`);
-      setSubmitting(false);
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("You must be logged in to purchase data.");
+        window.location.href = "/";
+        return;
+      }
+
+      // Format plan ID for backend
+      // Frontend: "mtn-sme-1gb" -> Backend expects plan="sme-1gb" (it prepends network)
+      const planCode = selectedPlan?.id.replace(`${network}-`, "") || "";
+
+      const payload = {
+        network: network,
+        plan: planCode,
+        phone: phoneNumber,
+        transaction_pin: pin
+      };
+
+      const res = await fetch(`${API_BASE_URL}/api/services/data/buy`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Data purchase failed");
+      }
+
+      showMessage(
+        "Purchase Successful",
+        `You have successfully purchased ${selectedPlan?.size} data for ${phoneNumber}. Reference: ${data.data.purchase_id}`,
+        "success"
+      );
+
       setPin("");
-    }, 1500);
+
+    } catch (error: any) {
+      showMessage("Purchase Failed", error.message || "An error occurred while processing your request", "error");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30">
+      <MessageModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        type={modalConfig.type}
+      />
       {/* SIDEBAR */}
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} activeView={activeView} setActiveView={setActiveView} />
 
@@ -226,11 +291,10 @@ export default function BuyDataPage() {
                     <button
                       key={n.key}
                       onClick={() => setNetwork(n.key)}
-                      className={`flex flex-col items-center p-4 rounded-xl border-2 transition-all duration-200 ${
-                        network === n.key
-                          ? "border-blue-500 bg-blue-50"
-                          : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                      }`}
+                      className={`flex flex-col items-center p-4 rounded-xl border-2 transition-all duration-200 ${network === n.key
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                        }`}
                     >
                       <div className={`h-10 w-10 rounded-full ${n.color} flex items-center justify-center mb-2`}>
                         <span className="text-white font-bold">{n.name.charAt(0)}</span>
@@ -249,16 +313,14 @@ export default function BuyDataPage() {
                     <button
                       key={p.key}
                       onClick={() => setPlanType(p.key)}
-                      className={`flex flex-col items-start p-4 rounded-xl border-2 text-left transition-all duration-200 ${
-                        planType === p.key
-                          ? "border-blue-500 bg-blue-50"
-                          : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                      }`}
+                      className={`flex flex-col items-start p-4 rounded-xl border-2 text-left transition-all duration-200 ${planType === p.key
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                        }`}
                     >
                       <div className="flex items-center gap-2 mb-2">
-                        <div className={`p-2 rounded-lg ${
-                          planType === p.key ? "bg-blue-100 text-blue-600" : "bg-gray-100 text-gray-600"
-                        }`}>
+                        <div className={`p-2 rounded-lg ${planType === p.key ? "bg-blue-100 text-blue-600" : "bg-gray-100 text-gray-600"
+                          }`}>
                           {p.icon}
                         </div>
                         <span className="font-semibold text-gray-900">{p.name}</span>
@@ -280,11 +342,10 @@ export default function BuyDataPage() {
                     <button
                       key={plan.id}
                       onClick={() => setDataPlanId(plan.id)}
-                      className={`p-4 rounded-xl border-2 transition-all duration-200 hover:scale-[1.02] ${
-                        dataPlanId === plan.id
-                          ? "border-blue-500 bg-blue-50"
-                          : "border-gray-200 hover:border-blue-300"
-                      }`}
+                      className={`p-4 rounded-xl border-2 transition-all duration-200 hover:scale-[1.02] ${dataPlanId === plan.id
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-200 hover:border-blue-300"
+                        }`}
                     >
                       <div className="flex justify-between items-start mb-2">
                         <div>
@@ -322,9 +383,8 @@ export default function BuyDataPage() {
                       Phone Number
                       {!bypassPhone && <span className="text-red-500 ml-1">*</span>}
                     </label>
-                    <div className={`flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors ${
-                      errors.phoneNumber ? "border-red-300" : "border-gray-300 focus-within:border-blue-500"
-                    }`}>
+                    <div className={`flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors ${errors.phoneNumber ? "border-red-300" : "border-gray-300 focus-within:border-blue-500"
+                      }`}>
                       <Phone className="h-5 w-5 text-gray-400" />
                       <input
                         type="tel"
@@ -360,9 +420,8 @@ export default function BuyDataPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Transaction PIN <span className="text-red-500">*</span>
                     </label>
-                    <div className={`relative rounded-xl border px-4 py-3 transition-colors ${
-                      errors.pin ? "border-red-300" : "border-gray-300 focus-within:border-blue-500"
-                    }`}>
+                    <div className={`relative rounded-xl border px-4 py-3 transition-colors ${errors.pin ? "border-red-300" : "border-gray-300 focus-within:border-blue-500"
+                      }`}>
                       <CreditCard className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                       <input
                         type="password"
@@ -411,7 +470,7 @@ export default function BuyDataPage() {
                     <CheckCircle className="h-5 w-5" />
                     Order Summary
                   </h2>
-                  
+
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <span className="text-gray-300">Network</span>

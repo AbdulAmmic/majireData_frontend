@@ -1,10 +1,24 @@
+import { useState, useEffect } from "react";
+
 export default function WelcomeCard() {
+  const [name, setName] = useState("User");
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const u = JSON.parse(storedUser);
+      // Try to get first name
+      const firstName = u.full_name ? u.full_name.split(" ")[0] : "User";
+      setName(firstName);
+    }
+  }, []);
+
   return (
     <div className="lg:col-span-2 bg-gradient-to-br from-white to-gray-50/50 border border-gray-100/50 rounded-2xl p-6 shadow-sm">
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            Good morning, Abdul! 👋
+            Good morning, {name}! 👋
           </h1>
           <p className="text-gray-600 text-sm">
             Here's what's happening with your account today.

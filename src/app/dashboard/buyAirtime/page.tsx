@@ -1,14 +1,16 @@
 "use client";
 
+import { API_BASE_URL } from "@/config";
+
 import { useEffect, useMemo, useState } from "react";
 import Sidebar from "@/components/sidebar";
 import Header from "@/components/header";
 import Link from "next/link";
-import { 
-  ChevronRight, 
-  Loader2, 
-  Phone, 
-  Shield, 
+import {
+  ChevronRight,
+  Loader2,
+  Phone,
+  Shield,
   CreditCard,
   ArrowRight,
   TrendingUp,
@@ -46,21 +48,21 @@ const NETWORKS: { key: NetworkKey; name: string; color: string }[] = [
 ];
 
 const AIRTIME_TYPES: { key: AirtimeTypeKey; name: string; description: string; icon: React.ReactNode }[] = [
-  { 
-    key: "regular", 
-    name: "Regular", 
+  {
+    key: "regular",
+    name: "Regular",
     description: "Direct airtime recharge",
     icon: <Smartphone className="h-4 w-4" />
   },
-  { 
-    key: "share", 
-    name: "Share & Gift", 
+  {
+    key: "share",
+    name: "Share & Gift",
     description: "Send airtime to others",
     icon: <Gift className="h-4 w-4" />
   },
-  { 
-    key: "bonus", 
-    name: "Bonus Plans", 
+  {
+    key: "bonus",
+    name: "Bonus Plans",
     description: "Get extra value on recharge",
     icon: <BatteryCharging className="h-4 w-4" />
   },
@@ -114,8 +116,8 @@ export default function BuyAirtimePage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const bonusPlans = useMemo(() => DEMO_BONUS_PLANS[network] || [], [network]);
-  const selectedBonusPlan = useMemo(() => 
-    bonusPlans.find((p) => p.amount === Number(amount)) || null, 
+  const selectedBonusPlan = useMemo(() =>
+    bonusPlans.find((p) => p.amount === Number(amount)) || null,
     [bonusPlans, amount]
   );
 
@@ -126,7 +128,7 @@ export default function BuyAirtimePage() {
 
   const validate = () => {
     const e: Record<string, string> = {};
-    
+
     if (!amount || Number(amount) <= 0) {
       e.amount = "Please enter a valid amount";
     } else if (Number(amount) < 50) {
@@ -156,21 +158,65 @@ export default function BuyAirtimePage() {
 
   const handleSubmit = async () => {
     if (!validate()) return;
-    
+
     setSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
-      const message = airtimeType === "share" 
-        ? `Successfully sent ${formatNaira(Number(amount))} airtime to ${recipientPhone}`
-        : `Successfully recharged ${formatNaira(Number(amount))} to ${phoneNumber}`;
-      
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("You must be logged in to purchase airtime.");
+        window.location.href = "/";
+        return;
+      }
+
+      // Determine correct phone number
+      // If "share", user might expect to send to recipient. 
+      // Backend expects 'phone' to be the number receiving airtime.
+      const targetPhone = airtimeType === "share" ? recipientPhone : phoneNumber;
+
+      const payload = {
+        network: network, // "mtn", "airtel"...
+        amount: Number(amount),
+        phone: targetPhone
+      };
+
+      const res = await fetch(`${API_BASE_URL}/api/services/airtime/topup`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Airtime purchase failed");
+      }
+
+      // Success
+      const message = airtimeType === "share"
+        ? `Successfully sent ${formatNaira(Number(amount))} airtime to ${targetPhone}`
+        : `Successfully recharged ${formatNaira(Number(amount))} to ${targetPhone}`;
+
       alert(message);
-      setSubmitting(false);
+
+      // Reset form
       setPin("");
       if (airtimeType === "share") {
         setRecipientPhone("");
       }
-    }, 1500);
+      // Refresh wallet balance if we could access the context/event
+      // For now, page reload or let the user navigate? 
+      // Ideally, we decrement balance locally or trigger a re-fetch in DebitCard (which we haven't linked via context yet).
+      // We'll leave as is for now.
+
+    } catch (error: any) {
+      alert(error.message || "An error occurred while processing your request");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const getActualValue = () => {
@@ -241,11 +287,10 @@ export default function BuyAirtimePage() {
                     <button
                       key={n.key}
                       onClick={() => setNetwork(n.key)}
-                      className={`flex flex-col items-center p-4 rounded-xl border-2 transition-all duration-200 ${
-                        network === n.key
-                          ? "border-purple-500 bg-purple-50"
-                          : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                      }`}
+                      className={`flex flex-col items-center p-4 rounded-xl border-2 transition-all duration-200 ${network === n.key
+                        ? "border-purple-500 bg-purple-50"
+                        : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                        }`}
                     >
                       <div className={`h-10 w-10 rounded-full ${n.color} flex items-center justify-center mb-2`}>
                         <span className="text-white font-bold">{n.name.charAt(0)}</span>
@@ -264,16 +309,14 @@ export default function BuyAirtimePage() {
                     <button
                       key={type.key}
                       onClick={() => setAirtimeType(type.key)}
-                      className={`flex flex-col items-start p-4 rounded-xl border-2 text-left transition-all duration-200 ${
-                        airtimeType === type.key
-                          ? "border-purple-500 bg-purple-50"
-                          : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                      }`}
+                      className={`flex flex-col items-start p-4 rounded-xl border-2 text-left transition-all duration-200 ${airtimeType === type.key
+                        ? "border-purple-500 bg-purple-50"
+                        : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                        }`}
                     >
                       <div className="flex items-center gap-2 mb-2">
-                        <div className={`p-2 rounded-lg ${
-                          airtimeType === type.key ? "bg-purple-100 text-purple-600" : "bg-gray-100 text-gray-600"
-                        }`}>
+                        <div className={`p-2 rounded-lg ${airtimeType === type.key ? "bg-purple-100 text-purple-600" : "bg-gray-100 text-gray-600"
+                          }`}>
                           {type.icon}
                         </div>
                         <span className="font-semibold text-gray-900">{type.name}</span>
@@ -302,11 +345,10 @@ export default function BuyAirtimePage() {
                         <button
                           key={plan.id}
                           onClick={() => handlePresetSelect(plan.amount)}
-                          className={`p-4 rounded-xl border-2 transition-all duration-200 hover:scale-[1.02] ${
-                            amount === plan.amount.toString()
-                              ? "border-purple-500 bg-purple-50"
-                              : "border-gray-200 hover:border-purple-300"
-                          }`}
+                          className={`p-4 rounded-xl border-2 transition-all duration-200 hover:scale-[1.02] ${amount === plan.amount.toString()
+                            ? "border-purple-500 bg-purple-50"
+                            : "border-gray-200 hover:border-purple-300"
+                            }`}
                         >
                           <div className="text-center">
                             <div className="font-bold text-gray-900 text-lg">{formatNaira(plan.amount)}</div>
@@ -336,9 +378,8 @@ export default function BuyAirtimePage() {
                           placeholder="Enter custom amount"
                           min="50"
                           max="50000"
-                          className={`w-full pl-10 pr-4 py-3 rounded-lg border ${
-                            errors.amount ? "border-red-300" : "border-gray-300"
-                          } focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none`}
+                          className={`w-full pl-10 pr-4 py-3 rounded-lg border ${errors.amount ? "border-red-300" : "border-gray-300"
+                            } focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none`}
                         />
                       </div>
                       {errors.amount && (
@@ -353,11 +394,10 @@ export default function BuyAirtimePage() {
                         <button
                           key={preset}
                           onClick={() => handlePresetSelect(preset)}
-                          className={`p-4 rounded-xl border-2 transition-all duration-200 ${
-                            amount === preset.toString() && !customAmount
-                              ? "border-purple-500 bg-purple-50"
-                              : "border-gray-200 hover:border-gray-300"
-                          }`}
+                          className={`p-4 rounded-xl border-2 transition-all duration-200 ${amount === preset.toString() && !customAmount
+                            ? "border-purple-500 bg-purple-50"
+                            : "border-gray-200 hover:border-gray-300"
+                            }`}
                         >
                           <div className="font-bold text-gray-900">{formatNaira(preset)}</div>
                         </button>
@@ -375,9 +415,8 @@ export default function BuyAirtimePage() {
                         placeholder="Enter custom amount (₦50 - ₦50,000)"
                         min="50"
                         max="50000"
-                        className={`w-full pl-10 pr-4 py-3 rounded-lg border ${
-                          errors.amount ? "border-red-300" : "border-gray-300"
-                        } focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none`}
+                        className={`w-full pl-10 pr-4 py-3 rounded-lg border ${errors.amount ? "border-red-300" : "border-gray-300"
+                          } focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none`}
                       />
                     </div>
                     {errors.amount && (
@@ -397,9 +436,8 @@ export default function BuyAirtimePage() {
                       Your Phone Number
                       {!bypassPhone && <span className="text-red-500 ml-1">*</span>}
                     </label>
-                    <div className={`flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors ${
-                      errors.phoneNumber ? "border-red-300" : "border-gray-300 focus-within:border-purple-500"
-                    }`}>
+                    <div className={`flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors ${errors.phoneNumber ? "border-red-300" : "border-gray-300 focus-within:border-purple-500"
+                      }`}>
                       <Smartphone className="h-5 w-5 text-gray-400" />
                       <input
                         type="tel"
@@ -436,9 +474,8 @@ export default function BuyAirtimePage() {
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Recipient's Phone Number <span className="text-red-500">*</span>
                       </label>
-                      <div className={`flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors ${
-                        errors.recipientPhone ? "border-red-300" : "border-gray-300 focus-within:border-purple-500"
-                      }`}>
+                      <div className={`flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors ${errors.recipientPhone ? "border-red-300" : "border-gray-300 focus-within:border-purple-500"
+                        }`}>
                         <Users className="h-5 w-5 text-gray-400" />
                         <input
                           type="tel"
@@ -462,9 +499,8 @@ export default function BuyAirtimePage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Transaction PIN <span className="text-red-500">*</span>
                     </label>
-                    <div className={`relative rounded-xl border px-4 py-3 transition-colors ${
-                      errors.pin ? "border-red-300" : "border-gray-300 focus-within:border-purple-500"
-                    }`}>
+                    <div className={`relative rounded-xl border px-4 py-3 transition-colors ${errors.pin ? "border-red-300" : "border-gray-300 focus-within:border-purple-500"
+                      }`}>
                       <CreditCard className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                       <input
                         type="password"
@@ -513,7 +549,7 @@ export default function BuyAirtimePage() {
                     <Receipt className="h-5 w-5" />
                     Order Summary
                   </h2>
-                  
+
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <span className="text-gray-300">Network</span>
@@ -527,7 +563,7 @@ export default function BuyAirtimePage() {
                       <span className="text-gray-300">Amount</span>
                       <span className="font-semibold">{amount ? formatNaira(Number(amount)) : "-"}</span>
                     </div>
-                    
+
                     {/* Bonus Information */}
                     {getBonusInfo() && (
                       <div className="bg-gray-800/50 rounded-lg p-3 mt-2">

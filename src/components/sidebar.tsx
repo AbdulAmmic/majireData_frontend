@@ -2,16 +2,19 @@
 
 import { X, Wallet, User, MoreVertical } from "lucide-react";
 import SidebarItem from "./sidebarItem";
-import { 
-  Home, 
-  Wifi, 
-  Phone, 
-  Tv, 
-  Calculator, 
-  DollarSign, 
-  Clock, 
-  BarChart2, 
-  Settings 
+import {
+  Home,
+  Wifi,
+  Phone,
+  Tv,
+  Calculator,
+  DollarSign,
+  Clock,
+  BarChart2,
+  Settings,
+  Zap,
+  GraduationCap,
+  Banknote
 } from "lucide-react";
 
 interface SidebarProps {
@@ -21,11 +24,11 @@ interface SidebarProps {
   setActiveView: (view: string) => void;
 }
 
-export default function Sidebar({ 
-  sidebarOpen, 
-  setSidebarOpen, 
-  activeView, 
-  setActiveView 
+export default function Sidebar({
+  sidebarOpen,
+  setSidebarOpen,
+  activeView,
+  setActiveView
 }: SidebarProps) {
   // Function to handle navigation
   const handleNavigation = (path: string) => {
@@ -36,13 +39,12 @@ export default function Sidebar({
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 bg-white/95 backdrop-blur-lg w-72 transform ${
-        sidebarOpen ? "translate-x-0" : "-translate-x-full"
-      } transition-all duration-300 ease-in-out z-30 lg:translate-x-0 lg:relative lg:bg-white/80 border-r border-gray-100/50`}
+      className={`fixed inset-y-0 left-0 bg-white/95 backdrop-blur-lg w-72 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } transition-all duration-300 ease-in-out z-30 lg:translate-x-0 lg:relative lg:bg-white/80 border-r border-gray-100/50`}
     >
       <div className="flex flex-col h-full">
         <div className="flex items-center justify-between p-6 border-b border-gray-100/50">
-          <button 
+          <button
             onClick={() => handleNavigation("/dashboard")}
             className="flex items-center gap-3 hover:opacity-90 transition-opacity"
           >
@@ -63,45 +65,72 @@ export default function Sidebar({
 
         <nav className="flex-1 p-6 space-y-1">
           <div className="space-y-1">
-            <SidebarItem 
-              icon={<Home className="w-4 h-4" />} 
-              label="Dashboard" 
+            <SidebarItem
+              icon={<Home className="w-4 h-4" />}
+              label="Dashboard"
               active={activeView === "dashboard"}
               onClick={() => {
                 setActiveView("dashboard");
                 handleNavigation("/dashboard");
               }}
             />
-            <SidebarItem 
-              icon={<Wifi className="w-4 h-4" />} 
-              label="Buy Data" 
+            <SidebarItem
+              icon={<Wifi className="w-4 h-4" />}
+              label="Buy Data"
               active={activeView === "data"}
               onClick={() => {
                 setActiveView("data");
                 handleNavigation("/dashboard/buyData");
               }}
             />
-            <SidebarItem 
-              icon={<Phone className="w-4 h-4" />} 
-              label="Buy Airtime" 
+            <SidebarItem
+              icon={<Phone className="w-4 h-4" />}
+              label="Buy Airtime"
               active={activeView === "airtime"}
               onClick={() => {
                 setActiveView("airtime");
                 handleNavigation("/dashboard/buyAirtime");
               }}
             />
-            <SidebarItem 
-              icon={<Tv className="w-4 h-4" />} 
-              label="Cable Sub" 
+            <SidebarItem
+              icon={<Tv className="w-4 h-4" />}
+              label="Cable Sub"
               active={activeView === "cable"}
               onClick={() => {
                 setActiveView("cable");
                 handleNavigation("/dashboard/cableSub");
               }}
             />
-            <SidebarItem 
-              icon={<Wallet className="w-4 h-4" />} 
-              label="Fund Wallet" 
+            <SidebarItem
+              icon={<Zap className="w-4 h-4" />}
+              label="Electricity"
+              active={activeView === "electricity"}
+              onClick={() => {
+                setActiveView("electricity");
+                handleNavigation("/dashboard/electricity");
+              }}
+            />
+            <SidebarItem
+              icon={<GraduationCap className="w-4 h-4" />}
+              label="Education"
+              active={activeView === "education"}
+              onClick={() => {
+                setActiveView("education");
+                handleNavigation("/dashboard/buyEpin");
+              }}
+            />
+            <SidebarItem
+              icon={<Banknote className="w-4 h-4" />}
+              label="Airtime 2 Cash"
+              active={activeView === "airtime-cash"}
+              onClick={() => {
+                setActiveView("airtime-cash");
+                handleNavigation("/dashboard/airtime-cash");
+              }}
+            />
+            <SidebarItem
+              icon={<Wallet className="w-4 h-4" />}
+              label="Fund Wallet"
               active={activeView === "fund"}
               onClick={() => {
                 setActiveView("fund");
@@ -115,18 +144,18 @@ export default function Sidebar({
               Tools
             </p>
             <div className="space-y-1">
-              <SidebarItem 
-                icon={<Calculator className="w-4 h-4" />} 
-                label="Calculator" 
+              <SidebarItem
+                icon={<Calculator className="w-4 h-4" />}
+                label="Calculator"
                 active={activeView === "calculator"}
                 onClick={() => {
                   setActiveView("calculator");
                   handleNavigation("/calculator");
                 }}
               />
-              <SidebarItem 
-                icon={<DollarSign className="w-4 h-4" />} 
-                label="Pricing" 
+              <SidebarItem
+                icon={<DollarSign className="w-4 h-4" />}
+                label="Pricing"
                 active={activeView === "pricing"}
                 onClick={() => {
                   setActiveView("pricing");
@@ -141,27 +170,27 @@ export default function Sidebar({
               Management
             </p>
             <div className="space-y-1">
-              <SidebarItem 
-                icon={<Clock className="w-4 h-4" />} 
-                label="Transactions" 
+              <SidebarItem
+                icon={<Clock className="w-4 h-4" />}
+                label="Transactions"
                 active={activeView === "transactions"}
                 onClick={() => {
                   setActiveView("transactions");
                   handleNavigation("/transactions");
                 }}
               />
-              <SidebarItem 
-                icon={<BarChart2 className="w-4 h-4" />} 
-                label="Analytics" 
+              <SidebarItem
+                icon={<BarChart2 className="w-4 h-4" />}
+                label="Analytics"
                 active={activeView === "analytics"}
                 onClick={() => {
                   setActiveView("analytics");
                   handleNavigation("/analytics");
                 }}
               />
-              <SidebarItem 
-                icon={<Settings className="w-4 h-4" />} 
-                label="Settings" 
+              <SidebarItem
+                icon={<Settings className="w-4 h-4" />}
+                label="Settings"
                 active={activeView === "settings"}
                 onClick={() => {
                   setActiveView("settings");
@@ -174,7 +203,7 @@ export default function Sidebar({
 
         {/* User Profile */}
         <div className="p-4 border-t border-gray-100/50">
-          <button 
+          <button
             onClick={() => handleNavigation("/profile")}
             className="flex items-center gap-3 p-3 rounded-xl bg-gray-50/50 hover:bg-gray-100/50 transition-colors w-full text-left"
           >

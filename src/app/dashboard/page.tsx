@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { API_BASE_URL } from "@/config";
+import { useState, useEffect } from "react";
 import Sidebar from "@/components/sidebar";
 import Header from "@/components/header";
 import WelcomeCard from "@/components/welcomeCard";
@@ -8,17 +9,44 @@ import QuickActions from "@/components/quickActions";
 // import RecentTrans
 import ActivityChart from "@/components/activityChart";
 import RecentTransactions from "@/components/recentTransacts";
+import PinSetupModal from "@/components/pinSetupModal";
 
 
 export default function DashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeView, setActiveView] = useState("dashboard");
+  const [showPinModal, setShowPinModal] = useState(false);
+
+  useEffect(() => {
+    // Check if user has PIN
+    const checkPin = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const res = await fetch(`${API_BASE_URL}/api/wallet/me`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.data.has_pin === false) {
+            setShowPinModal(true);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to check PIN status", err);
+      }
+    };
+
+    checkPin();
+  }, []);
 
   return (
     <div className="min-h-screen flex bg-gray-50/50">
       {/* SIDEBAR */}
-      <Sidebar 
-        sidebarOpen={sidebarOpen} 
+      <Sidebar
+        sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
         activeView={activeView}
         setActiveView={setActiveView}
@@ -30,6 +58,10 @@ export default function DashboardPage() {
           className="fixed inset-0 bg-black/20 backdrop-blur-sm z-20 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
+      )}
+
+      {showPinModal && (
+        <PinSetupModal onSuccess={() => setShowPinModal(false)} />
       )}
 
       {/* MAIN CONTENT */}

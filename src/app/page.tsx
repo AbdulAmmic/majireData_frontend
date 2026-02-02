@@ -1,14 +1,16 @@
 "use client";
 
+import { API_BASE_URL } from "@/config";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { 
-  Mail, 
-  Lock, 
-  User, 
-  Phone, 
-  Eye, 
-  EyeOff, 
+import {
+  Mail,
+  Lock,
+  User,
+  Phone,
+  Eye,
+  EyeOff,
   ChevronRight,
   Wallet,
   Wifi,
@@ -24,7 +26,7 @@ export default function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     email: "",
     phone: "",
@@ -42,14 +44,49 @@ export default function AuthPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-      
-      // Redirect to dashboard after successful login/signup
+
+    try {
+      const baseUrl = API_BASE_URL;
+      const endpoint = authMode === "login" ? "/api/auth/login" : "/api/auth/register";
+
+      const payload = authMode === "login"
+        ? { email: formData.email, password: formData.password }
+        : {
+          full_name: `${formData.firstName} ${formData.lastName}`.trim(),
+          email: formData.email,
+          phone: formData.phone,
+          password: formData.password
+        };
+
+      if (authMode === "signup" && formData.password !== formData.confirmPassword) {
+        alert("Passwords do not match!");
+        setLoading(false);
+        return;
+      }
+
+      const res = await fetch(`${baseUrl}${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Authentication failed");
+      }
+
+      // Success
+      localStorage.setItem("token", data.data.token);
+      localStorage.setItem("user", JSON.stringify(data.data.user));
+
       router.push("/dashboard");
-    }, 1000);
+
+    } catch (error: any) {
+      alert(error.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const features = [
@@ -77,7 +114,7 @@ export default function AuthPage() {
           <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6">
             Your All-in-One <br />VTU Solution
           </h2>
-          
+
           <div className="grid grid-cols-2 gap-4 mb-8">
             {features.map((feature, index) => (
               <div key={index} className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
@@ -129,21 +166,19 @@ export default function AuthPage() {
             <div className="flex mb-6">
               <button
                 onClick={() => setAuthMode("login")}
-                className={`flex-1 py-3 text-center font-medium rounded-l-xl transition-colors ${
-                  authMode === "login"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+                className={`flex-1 py-3 text-center font-medium rounded-l-xl transition-colors ${authMode === "login"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
               >
                 Login
               </button>
               <button
                 onClick={() => setAuthMode("signup")}
-                className={`flex-1 py-3 text-center font-medium rounded-r-xl transition-colors ${
-                  authMode === "signup"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+                className={`flex-1 py-3 text-center font-medium rounded-r-xl transition-colors ${authMode === "signup"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
               >
                 Sign Up
               </button>
@@ -155,8 +190,8 @@ export default function AuthPage() {
                 {authMode === "login" ? "Welcome Back" : "Create Account"}
               </h2>
               <p className="text-gray-500 mt-1">
-                {authMode === "login" 
-                  ? "Enter your credentials to access your account" 
+                {authMode === "login"
+                  ? "Enter your credentials to access your account"
                   : "Sign up to start using our services"}
               </p>
             </div>
