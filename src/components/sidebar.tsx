@@ -52,7 +52,7 @@ export default function Sidebar({
               <Wallet className="w-4 h-4 text-white" />
             </div>
             <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-              Majire Sub
+              247MiData
             </h1>
           </button>
           <button

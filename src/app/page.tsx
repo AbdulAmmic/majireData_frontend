@@ -106,7 +106,7 @@ export default function AuthPage() {
               <Wallet className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">Majire Sub</h1>
+              <h1 className="text-2xl font-bold text-white">247MiData</h1>
               <p className="text-blue-100 text-sm">VTU Services Platform</p>
             </div>
           </div>
@@ -155,7 +155,7 @@ export default function AuthPage() {
               <Wallet className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Majire Sub</h1>
+              <h1 className="text-xl font-bold text-gray-900">247MiData</h1>
               <p className="text-gray-500 text-sm">VTU Services Platform</p>
             </div>
           </div>
@@ -418,7 +418,7 @@ export default function AuthPage() {
 
           {/* Copyright */}
           <div className="mt-6 text-center text-sm text-gray-500">
-            <p>© {new Date().getFullYear()} Majire Sub. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} 247MiData. All rights reserved.</p>
           </div>
         </div>
       </div>
