@@ -177,7 +177,8 @@ export default function BuyAirtimePage() {
       const payload = {
         network: network, // "mtn", "airtel"...
         amount: Number(amount),
-        phone: targetPhone
+        phone: targetPhone,
+        transaction_pin: pin
       };
 
       const res = await fetch(`${API_BASE_URL}/api/services/airtime/topup`, {
