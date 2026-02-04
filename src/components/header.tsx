@@ -1,10 +1,18 @@
-import { Menu, Bell, User, Search } from "lucide-react";
+import { Menu, Bell, User, Search, LogOut } from "lucide-react";
+import { useState } from "react";
 
 interface HeaderProps {
   setSidebarOpen: (open: boolean) => void;
 }
 
 export default function Header({ setSidebarOpen }: HeaderProps) {
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    window.location.href = "/";
+  };
+
   return (
     <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-lg border-b border-gray-100/50">
       <div className="flex items-center justify-between px-6 py-4">
@@ -15,7 +23,7 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
           >
             <Menu className="w-6 h-6" />
           </button>
-          
+
           {/* Search Bar */}
           <div className="relative hidden md:block">
             <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -32,9 +40,26 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
             <Bell className="w-5 h-5" />
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
           </button>
-          
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center lg:hidden">
-            <User className="w-4 h-4 text-white" />
+
+          <div className="relative">
+            <button
+              onClick={() => setShowProfileMenu(!showProfileMenu)}
+              className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center hover:shadow-lg transition-shadow cursor-pointer"
+            >
+              <User className="w-4 h-4 text-white" />
+            </button>
+
+            {showProfileMenu && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1 animation-fade-in z-50">
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 w-full text-left transition-colors font-medium text-sm"
+                >
+                  <LogOut size={16} />
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
