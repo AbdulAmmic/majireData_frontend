@@ -134,10 +134,10 @@ export default function BuyDataPage() {
           // Map backend response to DataPlan
           const mapped: DataPlan[] = body.data.map((item: any) => ({
             id: item.id,
-            label: item.name, // Or parse the size from name
-            amount: item.amount, // This comes as a number (Naira) from backend if we used kobo_to_naira? No, my backend returns number.
-            size: item.name, // Temporary: Need better parsing of size
-            validity: "30 Days", // Hardcoded for now, or fetch from item if available
+            label: item.name,
+            amount: item.amount,
+            size: item.size || item.name,
+            validity: item.validity || "30 Days",
             popular: false
           }));
           // We should parse "size" more intelligently if possible. 
