@@ -280,50 +280,49 @@ export default function BuyAirtimePage() {
             {/* Left Panel - Form */}
             <div className="lg:col-span-2 space-y-6">
               {/* Network Selection */}
+              {/* Network Selection */}
               <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Select Network</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {NETWORKS.map((n) => (
-                    <button
-                      key={n.key}
-                      onClick={() => setNetwork(n.key)}
-                      className={`flex flex-col items-center p-4 rounded-xl border-2 transition-all duration-200 ${network === n.key
-                        ? "border-purple-500 bg-purple-50"
-                        : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                        }`}
-                    >
-                      <div className={`h-10 w-10 rounded-full ${n.color} flex items-center justify-center mb-2`}>
-                        <span className="text-white font-bold">{n.name.charAt(0)}</span>
-                      </div>
-                      <span className="font-medium text-gray-900">{n.name}</span>
-                    </button>
-                  ))}
+                <div className="relative">
+                  <select
+                    value={network}
+                    onChange={(e) => setNetwork(e.target.value as NetworkKey)}
+                    className="w-full p-4 pl-12 rounded-xl border border-gray-200 bg-gray-50/50 appearance-none focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 transition-all text-gray-900 font-medium cursor-pointer"
+                  >
+                    {NETWORKS.map((n) => (
+                      <option key={n.key} value={n.key}>
+                        {n.name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                    <div className={`h-6 w-6 rounded-full ${NETWORKS.find(n => n.key === network)?.color} flex items-center justify-center`}>
+                      <span className="text-white text-xs font-bold">{NETWORKS.find(n => n.key === network)?.name.charAt(0)}</span>
+                    </div>
+                  </div>
+                  <ChevronRight className="absolute right-4 top-1/2 transform -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none h-5 w-5" />
                 </div>
               </div>
 
               {/* Airtime Type Selection */}
               <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Choose Airtime Type</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  {AIRTIME_TYPES.map((type) => (
-                    <button
-                      key={type.key}
-                      onClick={() => setAirtimeType(type.key)}
-                      className={`flex flex-col items-start p-4 rounded-xl border-2 text-left transition-all duration-200 ${airtimeType === type.key
-                        ? "border-purple-500 bg-purple-50"
-                        : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                        }`}
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className={`p-2 rounded-lg ${airtimeType === type.key ? "bg-purple-100 text-purple-600" : "bg-gray-100 text-gray-600"
-                          }`}>
-                          {type.icon}
-                        </div>
-                        <span className="font-semibold text-gray-900">{type.name}</span>
-                      </div>
-                      <p className="text-sm text-gray-600">{type.description}</p>
-                    </button>
-                  ))}
+                <div className="relative">
+                  <select
+                    value={airtimeType}
+                    onChange={(e) => setAirtimeType(e.target.value as AirtimeTypeKey)}
+                    className="w-full p-4 pl-12 rounded-xl border border-gray-200 bg-gray-50/50 appearance-none focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 transition-all text-gray-900 font-medium cursor-pointer"
+                  >
+                    {AIRTIME_TYPES.map((type) => (
+                      <option key={type.key} value={type.key}>
+                        {type.name} - {type.description}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none">
+                    {AIRTIME_TYPES.find(t => t.key === airtimeType)?.icon}
+                  </div>
+                  <ChevronRight className="absolute right-4 top-1/2 transform -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none h-5 w-5" />
                 </div>
               </div>
 
@@ -338,92 +337,59 @@ export default function BuyAirtimePage() {
                   )}
                 </div>
 
-                {airtimeType === "bonus" ? (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      {bonusPlans.map((plan) => (
-                        <button
-                          key={plan.id}
-                          onClick={() => handlePresetSelect(plan.amount)}
-                          className={`p-4 rounded-xl border-2 transition-all duration-200 hover:scale-[1.02] ${amount === plan.amount.toString()
-                            ? "border-purple-500 bg-purple-50"
-                            : "border-gray-200 hover:border-purple-300"
-                            }`}
-                        >
-                          <div className="text-center">
-                            <div className="font-bold text-gray-900 text-lg">{formatNaira(plan.amount)}</div>
-                            <div className="mt-1 text-sm text-gray-600">Get {formatNaira(plan.actualValue)}</div>
-                            {plan.popular && (
-                              <div className="mt-2">
-                                <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
-                                  {plan.bonus}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                    <div className="pt-4 border-t border-gray-200">
-                      <p className="text-sm text-gray-600 mb-2">Or enter custom amount (₦50 - ₦50,000)</p>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">₦</span>
-                        <input
-                          type="number"
-                          value={customAmount ? amount : ""}
-                          onChange={(e) => {
-                            setAmount(e.target.value);
-                            setCustomAmount(true);
-                          }}
-                          placeholder="Enter custom amount"
-                          min="50"
-                          max="50000"
-                          className={`w-full pl-10 pr-4 py-3 rounded-lg border ${errors.amount ? "border-red-300" : "border-gray-300"
-                            } focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none`}
-                        />
-                      </div>
-                      {errors.amount && (
-                        <p className="mt-2 text-sm text-red-600">{errors.amount}</p>
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-4">
-                      {PRESET_AMOUNTS.map((preset) => (
-                        <button
-                          key={preset}
-                          onClick={() => handlePresetSelect(preset)}
-                          className={`p-4 rounded-xl border-2 transition-all duration-200 ${amount === preset.toString() && !customAmount
-                            ? "border-purple-500 bg-purple-50"
-                            : "border-gray-200 hover:border-gray-300"
-                            }`}
-                        >
-                          <div className="font-bold text-gray-900">{formatNaira(preset)}</div>
-                        </button>
-                      ))}
-                    </div>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">₦</span>
-                      <input
-                        type="number"
-                        value={customAmount ? amount : ""}
-                        onChange={(e) => {
-                          setAmount(e.target.value);
+                <div className="space-y-4">
+                  <div className="relative">
+                    <select
+                      value={customAmount ? "custom" : amount}
+                      onChange={(e) => {
+                        if (e.target.value === "custom") {
                           setCustomAmount(true);
-                        }}
-                        placeholder="Enter custom amount (₦50 - ₦50,000)"
-                        min="50"
-                        max="50000"
-                        className={`w-full pl-10 pr-4 py-3 rounded-lg border ${errors.amount ? "border-red-300" : "border-gray-300"
-                          } focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none`}
-                      />
-                    </div>
-                    {errors.amount && (
-                      <p className="mt-2 text-sm text-red-600">{errors.amount}</p>
-                    )}
-                  </>
-                )}
+                          setAmount("");
+                        } else {
+                          handlePresetSelect(Number(e.target.value));
+                        }
+                      }}
+                      className="w-full p-4 rounded-xl border border-gray-200 bg-gray-50/50 appearance-none focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 transition-all text-gray-900 font-medium cursor-pointer"
+                    >
+                      <option value="" disabled>Select an amount...</option>
+                      {airtimeType === "bonus"
+                        ? bonusPlans.map((plan) => (
+                          <option key={plan.id} value={plan.amount}>
+                            {formatNaira(plan.amount)} (Get {formatNaira(plan.actualValue)})
+                          </option>
+                        ))
+                        : PRESET_AMOUNTS.map((amt) => (
+                          <option key={amt} value={amt}>
+                            {formatNaira(amt)}
+                          </option>
+                        ))
+                      }
+                      <option value="custom">Enter Custom Amount</option>
+                    </select>
+                    <ChevronRight className="absolute right-4 top-1/2 transform -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none h-5 w-5" />
+                  </div>
+
+                  {/* Custom Amount Input - Always visible if 'custom' is selected or user types */}
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">₦</span>
+                    <input
+                      type="number"
+                      value={amount}
+                      onChange={(e) => {
+                        setAmount(e.target.value);
+                        setCustomAmount(true);
+                      }}
+                      placeholder="Or enter custom amount"
+                      min="50"
+                      max="50000"
+                      className={`w-full pl-10 pr-4 py-3 rounded-lg border ${errors.amount ? "border-red-300" : "border-gray-300"
+                        } focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all`}
+                    />
+                  </div>
+                  {errors.amount && (
+                    <p className="mt-2 text-sm text-red-600">{errors.amount}</p>
+                  )}
+                </div>
               </div>
 
               {/* Contact Information */}

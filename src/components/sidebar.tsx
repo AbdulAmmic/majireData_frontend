@@ -1,6 +1,6 @@
 "use client";
 
-import { X, Wallet, User, MoreVertical } from "lucide-react";
+import { X, Wallet, User, MoreVertical, LogOut } from "lucide-react";
 import SidebarItem from "./sidebarItem";
 import {
   Home,
@@ -202,11 +202,9 @@ export default function Sidebar({
         </nav>
 
         {/* User Profile */}
-        <div className="p-4 border-t border-gray-100/50">
-          <button
-            onClick={() => handleNavigation("/profile")}
-            className="flex items-center gap-3 p-3 rounded-xl bg-gray-50/50 hover:bg-gray-100/50 transition-colors w-full text-left"
-          >
+        {/* User Profile */}
+        <div className="p-4 border-t border-gray-100/50 space-y-2">
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50/50 w-full text-left">
             <div className="w-8 h-8 bg-gradient-to-br from-gray-600 to-gray-400 rounded-full flex items-center justify-center">
               <User className="w-4 h-4 text-white" />
             </div>
@@ -214,7 +212,20 @@ export default function Sidebar({
               <p className="text-sm font-medium text-gray-900 truncate">Abdurrahman Mustapha</p>
               <p className="text-xs text-gray-500 truncate">Staff</p>
             </div>
-            <MoreVertical className="w-4 h-4 text-gray-400 flex-shrink-0" />
+          </div>
+
+          <button
+            onClick={() => {
+              if (confirm("Are you sure you want to log out?")) {
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+                window.location.href = "/";
+              }
+            }}
+            className="flex items-center gap-3 p-3 rounded-xl text-red-600 hover:bg-red-50 transition-colors w-full text-left font-medium"
+          >
+            <LogOut className="w-5 h-5" />
+            <span>Log Out</span>
           </button>
         </div>
       </div>

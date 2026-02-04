@@ -18,7 +18,7 @@ export default function WelcomeCard() {
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            Good morning, {name}! 👋
+            Good Day, {name}! 👋
           </h1>
           <p className="text-gray-600 text-sm">
             Here's what's happening with your account today.

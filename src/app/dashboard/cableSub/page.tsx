@@ -335,48 +335,47 @@ export default function CableSubscriptionPage() {
               {/* Provider Selection */}
               <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Select Provider</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {PROVIDERS.map((p) => (
-                    <button
-                      key={p.key}
-                      onClick={() => setProvider(p.key)}
-                      className={`flex flex-col items-center p-4 rounded-xl border-2 transition-all duration-200 ${provider === p.key
-                        ? "border-amber-500 bg-amber-50"
-                        : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                        }`}
-                    >
-                      <div className={`h-10 w-10 rounded-full ${p.color} flex items-center justify-center mb-2 text-white`}>
-                        {p.icon}
-                      </div>
-                      <span className="font-medium text-gray-900">{p.name}</span>
-                    </button>
-                  ))}
+                <div className="relative">
+                  <select
+                    value={provider}
+                    onChange={(e) => setProvider(e.target.value as ProviderKey)}
+                    className="w-full p-4 pl-12 rounded-xl border border-gray-200 bg-gray-50/50 appearance-none focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition-all text-gray-900 font-medium cursor-pointer"
+                  >
+                    {PROVIDERS.map((p) => (
+                      <option key={p.key} value={p.key}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white pointer-events-none">
+                    <div className={`h-6 w-6 rounded-full ${PROVIDERS.find(p => p.key === provider)?.color} flex items-center justify-center`}>
+                      {/* Render simplified icon or just first char */}
+                      <span className="text-xs font-bold">{PROVIDERS.find(p => p.key === provider)?.name.charAt(0)}</span>
+                    </div>
+                  </div>
+                  <ChevronRight className="absolute right-4 top-1/2 transform -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none h-5 w-5" />
                 </div>
               </div>
 
               {/* Package Type Selection */}
               <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Choose Package Type</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  {packageTypes.map((type) => (
-                    <button
-                      key={type.key}
-                      onClick={() => setPackageType(type.key)}
-                      className={`flex flex-col items-start p-4 rounded-xl border-2 text-left transition-all duration-200 ${packageType === type.key
-                        ? "border-amber-500 bg-amber-50"
-                        : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                        }`}
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className={`p-2 rounded-lg ${packageType === type.key ? "bg-amber-100 text-amber-600" : "bg-gray-100 text-gray-600"
-                          }`}>
-                          <Star className="h-4 w-4" />
-                        </div>
-                        <span className="font-semibold text-gray-900">{type.name}</span>
-                      </div>
-                      <p className="text-sm text-gray-600">{type.description}</p>
-                    </button>
-                  ))}
+                <div className="relative">
+                  <select
+                    value={packageType}
+                    onChange={(e) => setPackageType(e.target.value as PackageTypeKey)}
+                    className="w-full p-4 pl-12 rounded-xl border border-gray-200 bg-gray-50/50 appearance-none focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition-all text-gray-900 font-medium cursor-pointer"
+                  >
+                    {packageTypes.map((type) => (
+                      <option key={type.key} value={type.key}>
+                        {type.name} - {type.description}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-amber-600 pointer-events-none">
+                    <Star className="h-5 w-5" />
+                  </div>
+                  <ChevronRight className="absolute right-4 top-1/2 transform -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none h-5 w-5" />
                 </div>
               </div>
 
@@ -387,71 +386,43 @@ export default function CableSubscriptionPage() {
                   <span className="text-sm text-gray-500">{availablePackages.length} packages</span>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {availablePackages.map((pkg) => (
-                    <button
-                      key={pkg.id}
-                      onClick={() => setSelectedPackageId(pkg.id)}
-                      className={`p-5 rounded-xl border-2 transition-all duration-200 text-left hover:scale-[1.01] ${selectedPackageId === pkg.id
-                        ? "border-amber-500 bg-amber-50"
-                        : "border-gray-200 hover:border-amber-300"
-                        }`}
-                    >
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h3 className="font-bold text-gray-900 text-lg">{pkg.name}</h3>
-                          <p className="text-sm text-gray-500 mt-1">{pkg.description}</p>
-                        </div>
-                        {pkg.popular && (
-                          <span className="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
-                            Popular
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <Users className="h-4 w-4" />
-                          <span>{pkg.channels} Channels</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <Calendar className="h-4 w-4" />
-                          <span>{pkg.duration}</span>
-                        </div>
-                      </div>
-
-                      <div className="mb-4">
-                        <div className="text-2xl font-bold text-gray-900">
-                          {formatNaira(pkg.amount)}
-                          <span className="text-sm font-normal text-gray-500"> / month</span>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <h4 className="text-sm font-medium text-gray-700">Features:</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {pkg.features.slice(0, 3).map((feature, idx) => (
-                            <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
-                              {feature}
-                            </span>
-                          ))}
-                          {pkg.features.length > 3 && (
-                            <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
-                              +{pkg.features.length - 3} more
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {selectedPackageId === pkg.id && (
-                        <div className="mt-4 flex items-center gap-1 text-amber-600 text-sm">
-                          <CheckCircle className="h-4 w-4" />
-                          <span>Selected</span>
-                        </div>
-                      )}
-                    </button>
-                  ))}
+                <div className="relative">
+                  <select
+                    value={selectedPackageId}
+                    onChange={(e) => setSelectedPackageId(e.target.value)}
+                    className="w-full p-4 rounded-xl border border-gray-200 bg-gray-50/50 appearance-none focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition-all text-gray-900 font-medium cursor-pointer"
+                  >
+                    {availablePackages.map((pkg) => (
+                      <option key={pkg.id} value={pkg.id}>
+                        {pkg.name} - {formatNaira(pkg.amount)} ({pkg.channels} Channels)
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronRight className="absolute right-4 top-1/2 transform -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none h-5 w-5" />
                 </div>
+
+                {/* Selected Package Summary */}
+                {selectedPackage && (
+                  <div className="mt-4 p-4 bg-amber-50 rounded-xl border border-amber-100">
+                    <div className="flex justify-between items-center mb-2">
+                      <div>
+                        <p className="text-lg font-bold text-gray-900">{selectedPackage.name}</p>
+                        <p className="text-sm text-gray-600">{selectedPackage.channels} Channels</p>
+                      </div>
+                      <div className="text-xl font-bold text-amber-700">
+                        {formatNaira(selectedPackage.amount)}
+                      </div>
+                    </div>
+                    {/* Features summary */}
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {selectedPackage.features.slice(0, 3).map((feature, idx) => (
+                        <span key={idx} className="px-2 py-1 bg-white text-gray-700 text-xs rounded border border-gray-100">
+                          {feature}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Subscription Details */}
@@ -463,19 +434,19 @@ export default function CableSubscriptionPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Subscription Duration
                     </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                      {DURATION_OPTIONS.map((option) => (
-                        <button
-                          key={option.value}
-                          onClick={() => setDuration(option.value)}
-                          className={`py-3 px-4 rounded-lg border-2 transition-all duration-200 ${duration === option.value
-                            ? "border-amber-500 bg-amber-50 text-amber-700 font-medium"
-                            : "border-gray-200 hover:border-gray-300 text-gray-700"
-                            }`}
-                        >
-                          {option.label}
-                        </button>
-                      ))}
+                    <div className="relative">
+                      <select
+                        value={duration}
+                        onChange={(e) => setDuration(e.target.value)}
+                        className="w-full p-4 rounded-xl border border-gray-200 bg-gray-50/50 appearance-none focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition-all text-gray-900 font-medium cursor-pointer"
+                      >
+                        {DURATION_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronRight className="absolute right-4 top-1/2 transform -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none h-5 w-5" />
                     </div>
                     <p className="mt-2 text-sm text-gray-500">
                       Longer durations come with discounted rates

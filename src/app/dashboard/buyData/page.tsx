@@ -286,48 +286,46 @@ export default function BuyDataPage() {
               {/* Network Selection */}
               <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Select Network</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {NETWORKS.map((n) => (
-                    <button
-                      key={n.key}
-                      onClick={() => setNetwork(n.key)}
-                      className={`flex flex-col items-center p-4 rounded-xl border-2 transition-all duration-200 ${network === n.key
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                        }`}
-                    >
-                      <div className={`h-10 w-10 rounded-full ${n.color} flex items-center justify-center mb-2`}>
-                        <span className="text-white font-bold">{n.name.charAt(0)}</span>
-                      </div>
-                      <span className="font-medium text-gray-900">{n.name}</span>
-                    </button>
-                  ))}
+                <div className="relative">
+                  <select
+                    value={network}
+                    onChange={(e) => setNetwork(e.target.value as NetworkKey)}
+                    className="w-full p-4 pl-12 rounded-xl border border-gray-200 bg-gray-50/50 appearance-none focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-gray-900 font-medium cursor-pointer"
+                  >
+                    {NETWORKS.map((n) => (
+                      <option key={n.key} value={n.key}>
+                        {n.name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                    <div className={`h-6 w-6 rounded-full ${NETWORKS.find(n => n.key === network)?.color} flex items-center justify-center`}>
+                      <span className="text-white text-xs font-bold">{NETWORKS.find(n => n.key === network)?.name.charAt(0)}</span>
+                    </div>
+                  </div>
+                  <ChevronRight className="absolute right-4 top-1/2 transform -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none h-5 w-5" />
                 </div>
               </div>
 
               {/* Plan Type Selection */}
               <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Choose Plan Type</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  {PLAN_TYPES.map((p) => (
-                    <button
-                      key={p.key}
-                      onClick={() => setPlanType(p.key)}
-                      className={`flex flex-col items-start p-4 rounded-xl border-2 text-left transition-all duration-200 ${planType === p.key
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                        }`}
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className={`p-2 rounded-lg ${planType === p.key ? "bg-blue-100 text-blue-600" : "bg-gray-100 text-gray-600"
-                          }`}>
-                          {p.icon}
-                        </div>
-                        <span className="font-semibold text-gray-900">{p.name}</span>
-                      </div>
-                      <p className="text-sm text-gray-600">{p.description}</p>
-                    </button>
-                  ))}
+                <div className="relative">
+                  <select
+                    value={planType}
+                    onChange={(e) => setPlanType(e.target.value as PlanTypeKey)}
+                    className="w-full p-4 pl-12 rounded-xl border border-gray-200 bg-gray-50/50 appearance-none focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-gray-900 font-medium cursor-pointer"
+                  >
+                    {PLAN_TYPES.map((p) => (
+                      <option key={p.key} value={p.key}>
+                        {p.name} - {p.description}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none">
+                    {PLAN_TYPES.find(p => p.key === planType)?.icon}
+                  </div>
+                  <ChevronRight className="absolute right-4 top-1/2 transform -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none h-5 w-5" />
                 </div>
               </div>
 
@@ -337,40 +335,37 @@ export default function BuyDataPage() {
                   <h2 className="text-lg font-semibold text-gray-900">Available Plans</h2>
                   <span className="text-sm text-gray-500">{plans.length} plans</span>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {plans.map((plan) => (
-                    <button
-                      key={plan.id}
-                      onClick={() => setDataPlanId(plan.id)}
-                      className={`p-4 rounded-xl border-2 transition-all duration-200 hover:scale-[1.02] ${dataPlanId === plan.id
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-200 hover:border-blue-300"
-                        }`}
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <h3 className="font-semibold text-gray-900">{plan.size}</h3>
-                          <p className="text-sm text-gray-500">{plan.validity}</p>
-                        </div>
-                        {plan.popular && (
-                          <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
-                            Popular
-                          </span>
-                        )}
-                      </div>
-                      <div className="mt-4">
-                        <div className="text-2xl font-bold text-gray-900">{formatNaira(plan.amount)}</div>
-                        <p className="text-sm text-gray-500 mt-1">Per subscription</p>
-                      </div>
-                      {dataPlanId === plan.id && (
-                        <div className="mt-3 flex items-center gap-1 text-blue-600 text-sm">
-                          <CheckCircle className="h-4 w-4" />
-                          <span>Selected</span>
-                        </div>
-                      )}
-                    </button>
-                  ))}
+
+                <div className="relative">
+                  <select
+                    value={dataPlanId}
+                    onChange={(e) => setDataPlanId(e.target.value)}
+                    className="w-full p-4 rounded-xl border border-gray-200 bg-gray-50/50 appearance-none focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-gray-900 font-medium cursor-pointer"
+                  >
+                    {plans.map((plan) => (
+                      <option key={plan.id} value={plan.id}>
+                        {plan.size} - {formatNaira(plan.amount)} ({plan.validity})
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronRight className="absolute right-4 top-1/2 transform -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none h-5 w-5" />
                 </div>
+
+                {/* Selected Plan Summary (Optional visual confirmation) */}
+                {selectedPlan && (
+                  <div className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-100">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="text-sm text-blue-600 font-medium">Selected Plan</p>
+                        <p className="text-lg font-bold text-gray-900">{selectedPlan.size}</p>
+                        <p className="text-sm text-gray-600">{selectedPlan.validity}</p>
+                      </div>
+                      <div className="text-xl font-bold text-blue-700">
+                        {formatNaira(selectedPlan.amount)}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Contact & Payment */}
