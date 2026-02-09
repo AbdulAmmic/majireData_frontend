@@ -176,7 +176,7 @@ export default function Sidebar({
                 active={activeView === "transactions"}
                 onClick={() => {
                   setActiveView("transactions");
-                  handleNavigation("/transactions");
+                  handleNavigation("/dashboard/transactions");
                 }}
               />
               <SidebarItem

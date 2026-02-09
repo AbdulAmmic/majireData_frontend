@@ -27,6 +27,7 @@ import {
   Clock,
   AlertCircle
 } from "lucide-react";
+import MessageModal from "@/components/messageModal";
 
 type NetworkKey = "mtn" | "airtel" | "glo" | "9mobile";
 type AirtimeTypeKey = "regular" | "share" | "bonus";
@@ -115,6 +116,19 @@ export default function BuyAirtimePage() {
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{
+    title: string;
+    message: string;
+    type: "success" | "error" | "warning";
+  }>({ title: "", message: "", type: "success" });
+
+  const showMessage = (title: string, message: string, type: "success" | "error" | "warning" = "success") => {
+    setModalConfig({ title, message, type });
+    setModalOpen(true);
+  };
+
+
   const bonusPlans = useMemo(() => DEMO_BONUS_PLANS[network] || [], [network]);
   const selectedBonusPlan = useMemo(() =>
     bonusPlans.find((p) => p.amount === Number(amount)) || null,
@@ -201,7 +215,7 @@ export default function BuyAirtimePage() {
         ? `Successfully sent ${formatNaira(Number(amount))} airtime to ${targetPhone}`
         : `Successfully recharged ${formatNaira(Number(amount))} to ${targetPhone}`;
 
-      alert(message);
+      showMessage("Transaction Successful", message, "success");
 
       // Reset form
       setPin("");
@@ -214,7 +228,7 @@ export default function BuyAirtimePage() {
       // We'll leave as is for now.
 
     } catch (error: any) {
-      alert(error.message || "An error occurred while processing your request");
+      showMessage("Transaction Failed", error.message || "An error occurred while processing your request", "error");
     } finally {
       setSubmitting(false);
     }
@@ -239,6 +253,13 @@ export default function BuyAirtimePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50/30">
+      <MessageModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        type={modalConfig.type}
+      />
       {/* SIDEBAR */}
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} activeView={activeView} setActiveView={setActiveView} />
 
