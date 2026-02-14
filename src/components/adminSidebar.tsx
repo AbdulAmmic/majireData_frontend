@@ -1,6 +1,6 @@
 "use client";
 
-import { X, Wallet, User, LogOut, Users, FileText, DollarSign, BarChart2, Shield } from "lucide-react";
+import { X, Wallet, User, LogOut, Users, FileText, DollarSign, BarChart2, Shield, MessageSquare } from "lucide-react";
 import SidebarItem from "./sidebarItem";
 
 interface SidebarProps {
@@ -62,6 +62,15 @@ export default function AdminSidebar({
                         onClick={() => {
                             setActiveView("users");
                             handleNavigation("/admin/users");
+                        }}
+                    />
+                    <SidebarItem
+                        icon={<MessageSquare className="w-4 h-4" />}
+                        label="Complaints"
+                        active={activeView === "complaints"}
+                        onClick={() => {
+                            setActiveView("complaints");
+                            handleNavigation("/admin/complaints");
                         }}
                     />
                     <SidebarItem

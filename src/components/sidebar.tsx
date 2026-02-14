@@ -14,7 +14,8 @@ import {
   Settings,
   Zap,
   GraduationCap,
-  Banknote
+  Banknote,
+  MessageCircle
 } from "lucide-react";
 
 interface SidebarProps {
@@ -137,6 +138,23 @@ export default function Sidebar({
                 handleNavigation("/dashboard/fundWallet");
               }}
             />
+          </div>
+
+          <div className="pt-6">
+            <p className="text-xs uppercase text-gray-400 font-semibold mb-3 px-3 tracking-wider">
+              Help & Support
+            </p>
+            <div className="space-y-1">
+              <SidebarItem
+                icon={<MessageCircle className="w-4 h-4" />}
+                label="Support"
+                active={activeView === "support"}
+                onClick={() => {
+                  setActiveView("support");
+                  handleNavigation("/dashboard/support");
+                }}
+              />
+            </div>
           </div>
 
           <div className="pt-6">
