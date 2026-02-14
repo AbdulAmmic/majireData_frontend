@@ -12,7 +12,7 @@ export default function AdminUsersPage() {
     const [search, setSearch] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
 
-    // Selection for funding
+  
     const [selectedUser, setSelectedUser] = useState<any>(null);
     const [fundAmount, setFundAmount] = useState("");
     const [funding, setFunding] = useState(false);
