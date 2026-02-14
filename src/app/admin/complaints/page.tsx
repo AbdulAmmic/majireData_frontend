@@ -33,7 +33,8 @@ export default function AdminComplaintsPage() {
         setLoading(true);
         try {
             const token = localStorage.getItem("token");
-            const url = new URL(`${API_BASE_URL}/api/admin/complaints`);
+            if (!token) return;
+            const url = new URL(`${API_BASE_URL}/api/admin/complaints`, window.location.origin);
             url.searchParams.append("page", page.toString());
             if (statusFilter) url.searchParams.append("status", statusFilter);
 

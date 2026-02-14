@@ -19,7 +19,8 @@ export default function AdminTransactionsPage() {
         setLoading(true);
         try {
             const token = localStorage.getItem("token");
-            const url = new URL(`${API_BASE_URL}/api/admin/transactions`);
+            if (!token) return;
+            const url = new URL(`${API_BASE_URL}/api/admin/transactions`, window.location.origin);
             url.searchParams.append("page", page.toString());
             if (statusFilter) url.searchParams.append("status", statusFilter);
 

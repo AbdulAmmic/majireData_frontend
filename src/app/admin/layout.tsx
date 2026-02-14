@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Menu } from "lucide-react";
 import AdminSidebar from "@/components/adminSidebar";
 
@@ -14,11 +14,22 @@ export default function AdminLayout({
     const pathname = usePathname();
     const [activeView, setActiveView] = useState("dashboard");
 
+    const router = useRouter();
+
     useEffect(() => {
         if (pathname.includes("/users")) setActiveView("users");
         else if (pathname.includes("/transactions")) setActiveView("transactions");
         else if (pathname.includes("/pricing")) setActiveView("pricing");
         else setActiveView("dashboard");
+    }, [pathname]);
+
+    useEffect(() => {
+        if (pathname !== "/admin/login") {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                router.push("/admin/login");
+            }
+        }
     }, [pathname]);
 
     // Don't show layout on login page

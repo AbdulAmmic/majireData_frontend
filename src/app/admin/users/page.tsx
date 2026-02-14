@@ -12,7 +12,7 @@ export default function AdminUsersPage() {
     const [search, setSearch] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
 
-  
+
     const [selectedUser, setSelectedUser] = useState<any>(null);
     const [fundAmount, setFundAmount] = useState("");
     const [funding, setFunding] = useState(false);
@@ -33,6 +33,7 @@ export default function AdminUsersPage() {
         setLoading(true);
         try {
             const token = localStorage.getItem("token");
+            if (!token) return;
             const res = await fetch(`${API_BASE_URL}/api/admin/users?page=${page}&query=${debouncedSearch}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
