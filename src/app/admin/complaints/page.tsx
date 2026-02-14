@@ -41,7 +41,7 @@ export default function AdminComplaintsPage() {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = await res.json();
-            if (data.status === "success") {
+            if (data.success) {
                 setComplaints(data.data.complaints);
                 setTotalPages(data.data.pages);
             }
@@ -72,7 +72,7 @@ export default function AdminComplaintsPage() {
 
             const data = await res.json();
 
-            if (data.status === "success") {
+            if (data.success) {
                 setModalConfig({
                     title: "Updated",
                     message: "Complaint updated successfully",

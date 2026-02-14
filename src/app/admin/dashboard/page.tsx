@@ -24,7 +24,7 @@ export default function AdminDashboard() {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = await res.json();
-            if (data.status === "success") {
+            if (data.success) {
                 setStats(data.data);
             }
         } catch (error) {

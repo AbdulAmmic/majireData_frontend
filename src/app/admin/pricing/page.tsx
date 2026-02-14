@@ -31,7 +31,7 @@ export default function AdminPricingPage() {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = await res.json();
-            if (data.status === "success") {
+            if (data.success) {
                 setPrices(data.data.items);
             }
         } catch (error) {
@@ -61,7 +61,7 @@ export default function AdminPricingPage() {
             });
 
             const data = await res.json();
-            if (data.status === "success") {
+            if (data.success) {
                 alert(editingItem ? "Plan updated" : "Plan created");
                 setShowModal(false);
                 fetchPrices();

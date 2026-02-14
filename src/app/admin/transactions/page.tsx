@@ -27,7 +27,7 @@ export default function AdminTransactionsPage() {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = await res.json();
-            if (data.status === "success") {
+            if (data.success) {
                 setTransactions(data.data.transactions);
                 setTotalPages(data.data.pages);
             }

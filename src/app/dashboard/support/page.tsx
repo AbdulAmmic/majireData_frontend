@@ -37,7 +37,7 @@ export default function SupportPage() {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = await res.json();
-            if (data.status === "success") {
+            if (data.success) {
                 setComplaints(data.data.complaints);
             }
         } catch (error) {

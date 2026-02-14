@@ -37,7 +37,7 @@ export default function AdminUsersPage() {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = await res.json();
-            if (data.status === "success") {
+            if (data.success) {
                 setUsers(data.data.users);
                 setTotalPages(data.data.pages);
             }
