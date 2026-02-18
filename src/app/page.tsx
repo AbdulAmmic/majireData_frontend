@@ -18,6 +18,8 @@ import {
   Smartphone
 } from "lucide-react";
 
+import MessageModal from "@/components/messageModal";
+
 type AuthMode = "login" | "signup" | "forgot-password" | "reset-password";
 
 export default function AuthPage() {
@@ -38,6 +40,26 @@ export default function AuthPage() {
     newPassword: "",
     confirmNewPassword: ""
   });
+
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type: "success" | "error" | "warning";
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    type: "success"
+  });
+
+  const showModal = (title: string, message: string, type: "success" | "error" | "warning") => {
+    setModalConfig({ isOpen: true, title, message, type });
+  };
+
+  const closeModal = () => {
+    setModalConfig(prev => ({ ...prev, isOpen: false }));
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -102,14 +124,14 @@ export default function AuthPage() {
 
       // Success
       if (authMode === "forgot-password") {
-        alert("Password reset code sent to your email!");
+        showModal("Success", "Password reset code sent to your email!", "success");
         setAuthMode("reset-password");
         setLoading(false);
         return;
       }
 
       if (authMode === "reset-password") {
-        alert("Password reset successfully! Please login.");
+        showModal("Success", "Password reset successfully! Please login.", "success");
         setAuthMode("login");
         setLoading(false);
         return;
@@ -121,7 +143,7 @@ export default function AuthPage() {
       router.push("/dashboard");
 
     } catch (error: any) {
-      alert(error.message || "Something went wrong");
+      showModal("Error", error.message || "Something went wrong", "error");
     } finally {
       setLoading(false);
     }
@@ -531,6 +553,14 @@ export default function AuthPage() {
           </div>
         </div>
       </div>
+
+      <MessageModal
+        isOpen={modalConfig.isOpen}
+        onClose={closeModal}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        type={modalConfig.type}
+      />
     </div>
   );
 }
