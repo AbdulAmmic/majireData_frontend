@@ -18,7 +18,7 @@ import {
   Smartphone
 } from "lucide-react";
 
-type AuthMode = "login" | "signup";
+type AuthMode = "login" | "signup" | "forgot-password" | "reset-password";
 
 export default function AuthPage() {
   const router = useRouter();
@@ -34,6 +34,9 @@ export default function AuthPage() {
     confirmPassword: "",
     firstName: "",
     lastName: "",
+    resetToken: "",
+    newPassword: "",
+    confirmNewPassword: ""
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,18 +50,39 @@ export default function AuthPage() {
 
     try {
       const baseUrl = API_BASE_URL;
-      const endpoint = authMode === "login" ? "/api/auth/login" : "/api/auth/register";
+      let endpoint = "";
+      let payload = {};
 
-      const payload = authMode === "login"
-        ? { email: formData.email, password: formData.password }
-        : {
+      if (authMode === "login") {
+        endpoint = "/api/auth/login";
+        payload = { email: formData.email, password: formData.password };
+      } else if (authMode === "signup") {
+        endpoint = "/api/auth/register";
+        payload = {
           full_name: `${formData.firstName} ${formData.lastName}`.trim(),
           email: formData.email,
           phone: formData.phone,
           password: formData.password
         };
+      } else if (authMode === "forgot-password") {
+        endpoint = "/api/auth/forgot-password";
+        payload = { email: formData.email };
+      } else if (authMode === "reset-password") {
+        endpoint = "/api/auth/reset-password";
+        payload = {
+          email: formData.email,
+          token: formData.resetToken,
+          new_password: formData.newPassword
+        };
+      }
 
       if (authMode === "signup" && formData.password !== formData.confirmPassword) {
+        alert("Passwords do not match!");
+        setLoading(false);
+        return;
+      }
+
+      if (authMode === "reset-password" && formData.newPassword !== formData.confirmNewPassword) {
         alert("Passwords do not match!");
         setLoading(false);
         return;
@@ -77,6 +101,20 @@ export default function AuthPage() {
       }
 
       // Success
+      if (authMode === "forgot-password") {
+        alert("Password reset code sent to your email!");
+        setAuthMode("reset-password");
+        setLoading(false);
+        return;
+      }
+
+      if (authMode === "reset-password") {
+        alert("Password reset successfully! Please login.");
+        setAuthMode("login");
+        setLoading(false);
+        return;
+      }
+
       localStorage.setItem("token", data.data.token);
       localStorage.setItem("user", JSON.stringify(data.data.user));
 
@@ -162,37 +200,53 @@ export default function AuthPage() {
 
           {/* Auth Card */}
           <div className="bg-white rounded-2xl border border-gray-200 shadow-lg p-6 md:p-8">
-            {/* Auth Mode Tabs */}
-            <div className="flex mb-6">
-              <button
-                onClick={() => setAuthMode("login")}
-                className={`flex-1 py-3 text-center font-medium rounded-l-xl transition-colors ${authMode === "login"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  }`}
-              >
-                Login
-              </button>
-              <button
-                onClick={() => setAuthMode("signup")}
-                className={`flex-1 py-3 text-center font-medium rounded-r-xl transition-colors ${authMode === "signup"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  }`}
-              >
-                Sign Up
-              </button>
-            </div>
+            {/* Auth Mode Tabs (Only verify login/signup) */}
+            {(authMode === "login" || authMode === "signup") && (
+              <div className="flex mb-6">
+                <button
+                  onClick={() => setAuthMode("login")}
+                  className={`flex-1 py-3 text-center font-medium rounded-l-xl transition-colors ${authMode === "login"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    }`}
+                >
+                  Login
+                </button>
+                <button
+                  onClick={() => setAuthMode("signup")}
+                  className={`flex-1 py-3 text-center font-medium rounded-r-xl transition-colors ${authMode === "signup"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    }`}
+                >
+                  Sign Up
+                </button>
+              </div>
+            )}
+
+            {(authMode === "forgot-password" || authMode === "reset-password") && (
+              <div className="mb-6">
+                <button
+                  onClick={() => setAuthMode("login")}
+                  className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                >
+                  ← Back to Login
+                </button>
+              </div>
+            )}
 
             {/* Form Title */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-gray-900">
-                {authMode === "login" ? "Welcome Back" : "Create Account"}
+                {authMode === "login" ? "Welcome Back" :
+                  authMode === "signup" ? "Create Account" :
+                    authMode === "forgot-password" ? "Forgot Password" : "Reset Password"}
               </h2>
               <p className="text-gray-500 mt-1">
-                {authMode === "login"
-                  ? "Enter your credentials to access your account"
-                  : "Sign up to start using our services"}
+                {authMode === "login" ? "Enter your credentials to access your account" :
+                  authMode === "signup" ? "Sign up to start using our services" :
+                    authMode === "forgot-password" ? "Enter your email to receive a reset code" :
+                      "Enter the code sent to your email and your new password"}
               </p>
             </div>
 
@@ -237,23 +291,26 @@ export default function AuthPage() {
                 </div>
               )}
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="you@example.com"
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all"
-                  />
+              {(authMode === "login" || authMode === "signup" || authMode === "forgot-password" || authMode === "reset-password") && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Address
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      required
+                      readOnly={authMode === "reset-password"} // Readonly in reset mode (using same email)
+                      placeholder="you@example.com"
+                      className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all"
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
 
               {authMode === "signup" && (
                 <div>
@@ -275,42 +332,91 @@ export default function AuthPage() {
                 </div>
               )}
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    name="password"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="••••••••"
-                    className="w-full pl-10 pr-12 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                  </button>
-                </div>
-              </div>
-
-              {authMode === "signup" && (
+              {authMode === "reset-password" && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Confirm Password
+                    Reset Code
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input
+                      type="text"
+                      name="resetToken"
+                      value={formData.resetToken}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="123456"
+                      className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {(authMode === "login" || authMode === "signup") && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="••••••••"
+                      className="w-full pl-10 pr-12 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {authMode === "reset-password" && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    New Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      name="newPassword"
+                      value={formData.newPassword}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="••••••••"
+                      className="w-full pl-10 pr-12 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {(authMode === "signup" || authMode === "reset-password") && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Confirm {authMode === "reset-password" ? "New " : ""}Password
                   </label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                     <input
                       type={showConfirmPassword ? "text" : "password"}
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
+                      name={authMode === "reset-password" ? "confirmNewPassword" : "confirmPassword"}
+                      value={authMode === "reset-password" ? formData.confirmNewPassword : formData.confirmPassword}
                       onChange={handleInputChange}
                       required
                       placeholder="••••••••"
@@ -338,6 +444,7 @@ export default function AuthPage() {
                   </label>
                   <button
                     type="button"
+                    onClick={() => setAuthMode("forgot-password")}
                     className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                   >
                     Forgot password?
@@ -377,7 +484,9 @@ export default function AuthPage() {
                   </>
                 ) : (
                   <>
-                    {authMode === "login" ? "Login to Account" : "Create Account"}
+                    {authMode === "login" ? "Login to Account" :
+                      authMode === "signup" ? "Create Account" :
+                        authMode === "forgot-password" ? "Send Reset Code" : "Reset Password"}
                     <ChevronRight className="h-5 w-5" />
                   </>
                 )}
