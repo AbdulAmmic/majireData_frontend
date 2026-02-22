@@ -78,7 +78,12 @@ export default function AirtimeToCashPage() {
                 throw new Error(data.message || "Failed to submit request");
             }
 
-            showMessage("Request Submitted", "Request submitted successfully! Admin will verify and credit your wallet.", "success");
+            const message = data.message || "Request submitted successfully! Cheetahpay will verify and credit your wallet.";
+
+            // If Cheetahpay returned a specific instruction (e.g. number to transfer to), show it
+            const displayMessage = data.cheetahpay_response?.message || message;
+
+            showMessage("Request Submitted", displayMessage, "success");
 
             setFormData({
                 network: "",
