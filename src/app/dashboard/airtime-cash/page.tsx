@@ -101,7 +101,7 @@ export default function AirtimeToCashPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50/50">
+        <div className="flex min-h-screen bg-gray-50/50">
             <MessageModal
                 isOpen={modalOpen}
                 onClose={() => setModalOpen(false)}
@@ -115,7 +115,7 @@ export default function AirtimeToCashPage() {
                 <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
             )}
 
-            <div className="flex-1 flex flex-col lg:pl-64">
+            <div className="flex-1 flex flex-col">
                 <Header setSidebarOpen={setSidebarOpen} />
 
                 <main className="flex-1 p-6 max-w-4xl mx-auto w-full">

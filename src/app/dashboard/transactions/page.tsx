@@ -58,7 +58,7 @@ export default function TransactionsPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50/50">
+        <div className="flex min-h-screen bg-gray-50/50">
             <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} activeView={activeView} setActiveView={setActiveView} />
 
             <ReceiptModal
@@ -71,7 +71,7 @@ export default function TransactionsPage() {
                 <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
             )}
 
-            <div className="flex-1 flex flex-col lg:pl-72 transition-all duration-300">
+            <div className="flex-1 flex flex-col transition-all duration-300">
                 <Header setSidebarOpen={setSidebarOpen} />
 
                 <main className="flex-1 p-6 max-w-7xl mx-auto w-full">
@@ -126,8 +126,8 @@ export default function TransactionsPage() {
                                         {/* Mobile: Header for Service */}
                                         <div className="md:col-span-2 flex items-center gap-3">
                                             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${tx.service === "DATA" ? "bg-purple-100 text-purple-600" :
-                                                    tx.service === "AIRTIME" ? "bg-yellow-100 text-yellow-600" :
-                                                        "bg-blue-100 text-blue-600"
+                                                tx.service === "AIRTIME" ? "bg-yellow-100 text-yellow-600" :
+                                                    "bg-blue-100 text-blue-600"
                                                 }`}>
                                                 {tx.service[0]}
                                             </div>
@@ -147,8 +147,8 @@ export default function TransactionsPage() {
                                             <span className="md:hidden text-sm text-gray-500">Status:</span>
                                             <div>
                                                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${tx.status === "SUCCESS" ? "bg-green-100 text-green-800" :
-                                                        tx.status === "FAILED" ? "bg-red-100 text-red-800" :
-                                                            "bg-yellow-100 text-yellow-800"
+                                                    tx.status === "FAILED" ? "bg-red-100 text-red-800" :
+                                                        "bg-yellow-100 text-yellow-800"
                                                     }`}>
                                                     {tx.status}
                                                 </span>

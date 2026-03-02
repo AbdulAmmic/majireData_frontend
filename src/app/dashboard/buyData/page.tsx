@@ -234,7 +234,7 @@ export default function BuyDataPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30">
+    <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30">
       <MessageModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -251,7 +251,7 @@ export default function BuyDataPage() {
       )}
 
       {/* MAIN CONTENT */}
-      <div className="flex-1 flex flex-col lg:pl-64">
+      <div className="flex-1 flex flex-col">
         {/* HEADER */}
         <Header setSidebarOpen={setSidebarOpen} />
 
