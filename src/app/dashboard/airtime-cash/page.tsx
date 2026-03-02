@@ -143,9 +143,9 @@ export default function AirtimeToCashPage() {
                                         <h3 className="font-semibold text-lg">Transfer Airtime</h3>
                                         <p className="text-blue-100 text-sm mt-1">Transfer the amount to our dedicated numbers below.</p>
                                         <div className="mt-3 bg-white/10 rounded-xl p-4 text-sm font-mono space-y-2">
-                                            <div className="flex justify-between"><span>MTN</span> <span>0803 123 4567</span></div>
-                                            <div className="flex justify-between"><span>Airtel</span> <span>0802 123 4567</span></div>
-                                            <div className="flex justify-between"><span>Glo</span> <span>0805 123 4567</span></div>
+                                            <div className="flex justify-between"><span>MTN</span> <span>0803 456 7890</span></div>
+                                            <div className="flex justify-between"><span>Airtel</span> <span>0802 345 6789</span></div>
+                                            <div className="flex justify-between"><span>Glo</span> <span>0805 234 5678</span></div>
                                             <div className="flex justify-between"><span>9Mobile</span> <span>0809 123 4567</span></div>
                                         </div>
                                     </div>

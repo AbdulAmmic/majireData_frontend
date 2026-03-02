@@ -80,6 +80,30 @@ export default function DashboardPage() {
           {/* QUICK ACTIONS */}
           <QuickActions />
 
+          {/* USSD BALANCE CHECKS */}
+          <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <span className="w-1.5 h-6 bg-blue-600 rounded-full"></span>
+              Check Balance USSD Codes
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-xl border border-yellow-100">
+                <div>
+                  <p className="text-xs font-bold text-yellow-800 uppercase tracking-wider">MTN SME Balance</p>
+                  <p className="text-2xl font-black text-yellow-900 font-mono">*461*4#</p>
+                </div>
+                <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center text-white font-bold">MTN</div>
+              </div>
+              <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-100">
+                <div>
+                  <p className="text-xs font-bold text-blue-800 uppercase tracking-wider">Gifting/Corporate Balance</p>
+                  <p className="text-2xl font-black text-blue-900 font-mono">*323*4#</p>
+                </div>
+                <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">C/G</div>
+              </div>
+            </div>
+          </section>
+
           {/* RECENT TRANSACTIONS & ACTIVITY */}
           <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <RecentTransactions />

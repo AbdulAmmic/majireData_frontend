@@ -49,8 +49,8 @@ export default function Sidebar({
             onClick={() => handleNavigation("/dashboard")}
             className="flex items-center gap-3 hover:opacity-90 transition-opacity"
           >
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-              <Wallet className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden bg-white">
+              <img src="/logo.png" alt="247MiData" className="w-full h-full object-contain" />
             </div>
             <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
               247MiData

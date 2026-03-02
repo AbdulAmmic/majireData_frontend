@@ -162,8 +162,8 @@ export default function AuthPage() {
       <div className="hidden md:flex md:w-1/2 bg-gradient-to-br from-blue-600 to-blue-800 p-8 lg:p-12 flex-col justify-between">
         <div>
           <div className="flex items-center gap-3 mb-8">
-            <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-              <Wallet className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center overflow-hidden">
+              <img src="/logo.png" alt="247MiData" className="w-full h-full object-contain p-1" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-white">247MiData</h1>
@@ -211,8 +211,8 @@ export default function AuthPage() {
         <div className="w-full max-w-md">
           {/* Logo for Mobile */}
           <div className="md:hidden flex items-center justify-center gap-3 mb-8">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl flex items-center justify-center">
-              <Wallet className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center overflow-hidden border border-gray-100 shadow-sm">
+              <img src="/logo.png" alt="247MiData" className="w-full h-full object-contain p-1" />
             </div>
             <div>
               <h1 className="text-xl font-bold text-gray-900">247MiData</h1>

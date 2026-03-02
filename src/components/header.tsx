@@ -24,6 +24,15 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
             <Menu className="w-6 h-6" />
           </button>
 
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg overflow-hidden bg-blue-50 flex items-center justify-center lg:hidden">
+              <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
+            </div>
+            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent lg:hidden">
+              247MiData
+            </span>
+          </div>
+
           {/* Search Bar */}
           <div className="relative hidden md:block">
             <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
