@@ -178,18 +178,18 @@ export default function BuyDataPage() {
         return;
       }
 
-      // Format network correctly for backend e.g mtn_sme_data
-      let networkKey = `${network}_${planType}_data`;
-      if (planType === "corporate") networkKey = `${network}_corporate_data`;
+      // Format network correctly for frontend payload (just generic name for DB validation)
+      const networkKey = network
 
       const payload = {
         network: networkKey,
-        plan_code: selectedPlan?.id || "",
-        mobile_number: phoneNumber,
+        plan: selectedPlan?.id || "",
+        phone: phoneNumber,
+        amount: selectedPlan?.amount || 0,
         transaction_pin: pin
       };
 
-      const res = await fetch(`${API_BASE_URL}/peyflex/data/purchase/`, {
+      const res = await fetch(`${API_BASE_URL}/api/data/buy`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

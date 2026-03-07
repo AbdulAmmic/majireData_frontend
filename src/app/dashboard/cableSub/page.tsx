@@ -248,18 +248,15 @@ export default function CableSubscriptionPage() {
     setSubmitting(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API_BASE_URL}/peyflex/cable/subscribe/`, {
+      const res = await fetch(`${API_BASE_URL}/api/cable/subscribe`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({
-          identifier: provider,
-          iuc: smartCardNumber,
           plan: selectedPackage?.id || "",
-          amount: calculateTotalAmount().toString(),
-          phone: customerPhone,
+          iuc: smartCardNumber,
           transaction_pin: pin
         })
       });

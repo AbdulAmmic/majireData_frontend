@@ -191,11 +191,11 @@ export default function BuyAirtimePage() {
       const payload = {
         network: network, // "mtn", "airtel"...
         amount: Number(amount),
-        mobile_number: targetPhone,
+        phone: targetPhone,
         transaction_pin: pin
       };
 
-      const res = await fetch(`${API_BASE_URL}/peyflex/airtime/topup/`, {
+      const res = await fetch(`${API_BASE_URL}/api/airtime/buy`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

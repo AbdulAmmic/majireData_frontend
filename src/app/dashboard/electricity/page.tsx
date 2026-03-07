@@ -71,15 +71,21 @@ export default function ElectricityPage() {
 
         try {
             const token = localStorage.getItem("token");
-            const res = await fetch(`${API_BASE_URL}/peyflex/electricity/verify/?identifier=electricity&meter=${meterNumber}&plan=${selectedDisco}&type=${meterType}`, {
-                headers: { "Authorization": `Bearer ${token}` }
+            const res = await fetch(`${API_BASE_URL}/api/electricity/verify`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    disco_id: selectedDisco,
+                    meter: meterNumber,
+                    mtype: meterType
+                })
             });
             const data = await res.json();
             if (res.ok) {
-                // Adjust based on actual provider response structure
-                // Assuming provider_response contains name or valid status
-                // If it's pure DataStation response, it might be data.provider_response.name
-                setVerifiedName(data.data.provider_response?.name || "Verified Customer");
+                setVerifiedName(data.data?.name || data.data?.Customer_Name || "Verified Customer");
             } else {
                 setError(data.message || "Could not validate meter");
             }
@@ -106,19 +112,17 @@ export default function ElectricityPage() {
             const token = localStorage.getItem("token");
             const userPhone = JSON.parse(localStorage.getItem("user") || "{}").phone || "08000000000";
 
-            const res = await fetch(`${API_BASE_URL}/peyflex/electricity/subscribe/`, {
+            const res = await fetch(`${API_BASE_URL}/api/electricity/pay`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    identifier: "electricity",
-                    plan: selectedDisco,
+                    disco_id: selectedDisco,
                     meter: meterNumber,
-                    type: meterType,
+                    mtype: meterType,
                     amount: amount,
-                    phone: userPhone,
                     transaction_pin: pin
                 })
             });
