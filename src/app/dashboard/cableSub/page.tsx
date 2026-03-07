@@ -152,7 +152,7 @@ export default function CableSubscriptionPage() {
         });
         const body = await res.json();
         if (res.ok) {
-          const items = Array.isArray(body) ? body : (body.data || []);
+          const items = Array.isArray(body) ? body : (body.plans || body.data || []);
           const mapped: CablePackage[] = items.map((item: any) => ({
             id: item.id || item.plan_id || item.code || item.package,
             name: item.name || item.package_name,

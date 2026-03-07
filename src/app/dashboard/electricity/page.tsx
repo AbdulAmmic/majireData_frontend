@@ -52,8 +52,9 @@ export default function ElectricityPage() {
                 });
                 const body = await res.json();
                 if (res.ok) {
-                    setDiscos(body.data);
-                    if (body.data.length > 0) setSelectedDisco(body.data[0].id);
+                    const plans = Array.isArray(body) ? body : (body.plans || body.data || []);
+                    setDiscos(plans);
+                    if (plans.length > 0) setSelectedDisco(plans[0].id || plans[0].plan_code || plans[0].name);
                 }
             } catch (e) {
                 console.error(e);

@@ -117,10 +117,10 @@ export default function BuyDataPage() {
         });
         const body = await res.json();
         if (res.ok) {
-          const items = Array.isArray(body) ? body : (body.data || []);
+          const items = Array.isArray(body) ? body : (body.plans || body.data || []);
           const mapped: DataPlan[] = items.map((item: any) => ({
             id: item.plan_id || item.id || item.plan_code || item.name,
-            label: item.name || item.plan_name || item.size || "Data Plan",
+            label: item.allowance || item.name || item.plan_name || item.size || "Data Plan",
             amount: item.amount || item.price || 0,
             size: item.size || item.allowance || item.name || "Data Plan",
             validity: item.validity || "30 Days",
