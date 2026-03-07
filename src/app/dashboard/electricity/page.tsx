@@ -47,14 +47,13 @@ export default function ElectricityPage() {
             try {
                 const token = localStorage.getItem("token");
                 if (!token) return;
-                const res = await fetch(`${API_BASE_URL}/peyflex/electricity/plans/?identifier=electricity`, {
+                const res = await fetch(`${API_BASE_URL}/api/services/plans?service=ELECTRICITY`, {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
                 const body = await res.json();
                 if (res.ok) {
-                    const plans = Array.isArray(body) ? body : (body.plans || body.data || []);
-                    setDiscos(plans);
-                    if (plans.length > 0) setSelectedDisco(plans[0].id || plans[0].plan_code || plans[0].name);
+                    setDiscos(body.data);
+                    if (body.data.length > 0) setSelectedDisco(body.data[0].id);
                 }
             } catch (e) {
                 console.error(e);
@@ -71,21 +70,15 @@ export default function ElectricityPage() {
 
         try {
             const token = localStorage.getItem("token");
-            const res = await fetch(`${API_BASE_URL}/api/electricity/verify`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    disco_id: selectedDisco,
-                    meter: meterNumber,
-                    mtype: meterType
-                })
+            const res = await fetch(`${API_BASE_URL}/api/services/validate/meter?meternumber=${meterNumber}&disconame=${selectedDisco}&mtype=${meterType}`, {
+                headers: { "Authorization": `Bearer ${token}` }
             });
             const data = await res.json();
             if (res.ok) {
-                setVerifiedName(data.data?.name || data.data?.Customer_Name || "Verified Customer");
+                // Adjust based on actual provider response structure
+                // Assuming provider_response contains name or valid status
+                // If it's pure DataStation response, it might be data.provider_response.name
+                setVerifiedName(data.data.provider_response?.name || "Verified Customer");
             } else {
                 setError(data.message || "Could not validate meter");
             }
@@ -110,16 +103,14 @@ export default function ElectricityPage() {
 
         try {
             const token = localStorage.getItem("token");
-            const userPhone = JSON.parse(localStorage.getItem("user") || "{}").phone || "08000000000";
-
-            const res = await fetch(`${API_BASE_URL}/api/electricity/pay`, {
+            const res = await fetch(`${API_BASE_URL}/api/services/electricity/pay`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    disco_id: selectedDisco,
+                    disco: selectedDisco,
                     meter: meterNumber,
                     mtype: meterType,
                     amount: amount,

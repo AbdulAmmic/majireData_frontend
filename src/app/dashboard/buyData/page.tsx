@@ -97,8 +97,25 @@ export default function BuyDataPage() {
   const [fetchedPlans, setFetchedPlans] = useState<DataPlan[]>([]);
   const [loadingPlans, setLoadingPlans] = useState<boolean>(true);
 
-  // Simplified since we now fetch specific plans per network & type
-  const plans = fetchedPlans;
+  // Filter plans based on selected network and planType
+  const plans = useMemo(() => {
+    // Filter by network
+    // The backend plan ID convention is "network_plan-details", e.g. "mtn_sme-1gb"
+    // Our network keys are "mtn", "airtel", "glo", "9mobile"
+    // Our plan types are "sme", "gifting", "corporate"
+
+    return fetchedPlans.filter(p => {
+      // Check network
+      if (!p.id.toLowerCase().startsWith(network.toLowerCase())) return false;
+
+      // Check plan type
+      if (planType === "sme" && p.id.toLowerCase().includes("sme")) return true;
+      if (planType === "gifting" && (p.id.toLowerCase().includes("gift") || !p.id.toLowerCase().includes("sme"))) return true; // Falback to gifting if not sme or corporate
+      if (planType === "corporate" && p.id.toLowerCase().includes("corp")) return true;
+
+      return false;
+    });
+  }, [fetchedPlans, network, planType]);
 
   const selectedPlan = useMemo(() => plans.find((p) => p.id === dataPlanId) || null, [plans, dataPlanId]);
 
@@ -109,23 +126,22 @@ export default function BuyDataPage() {
         const token = localStorage.getItem("token");
         if (!token) return;
 
-        let networkKey = `${network}_${planType}_data`;
-        if (planType === "corporate") networkKey = `${network}_corporate_data`;
-
-        const res = await fetch(`${API_BASE_URL}/peyflex/data/plans/?network=${networkKey}`, {
+        const res = await fetch(`${API_BASE_URL}/api/services/plans?service=DATA`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
         const body = await res.json();
         if (res.ok) {
-          const items = Array.isArray(body) ? body : (body.plans || body.data || []);
-          const mapped: DataPlan[] = items.map((item: any) => ({
-            id: item.plan_id || item.id || item.plan_code || item.name,
-            label: item.allowance || item.name || item.plan_name || item.size || "Data Plan",
-            amount: item.amount || item.price || 0,
-            size: item.size || item.allowance || item.name || "Data Plan",
+          // Map backend response to DataPlan
+          const mapped: DataPlan[] = body.data.map((item: any) => ({
+            id: item.id,
+            label: item.name,
+            amount: item.amount,
+            size: item.size || item.name,
             validity: item.validity || "30 Days",
             popular: false
           }));
+          // We should parse "size" more intelligently if possible. 
+          // e.g. "MTN SME 1GB" -> "1GB"
           const refined = mapped.map(p => {
             const match = p.label.match(/(\d+\.?\d*)(MB|GB|TB)/i);
             if (match) {
@@ -134,8 +150,6 @@ export default function BuyDataPage() {
             return p;
           });
           setFetchedPlans(refined);
-        } else {
-          setFetchedPlans([]);
         }
       } catch (err) {
         console.error(err);
@@ -144,7 +158,7 @@ export default function BuyDataPage() {
       }
     }
     fetchPlans();
-  }, [network, planType]);
+  }, []);
 
 
   useEffect(() => {
@@ -178,18 +192,18 @@ export default function BuyDataPage() {
         return;
       }
 
-      // Format network correctly for frontend payload (just generic name for DB validation)
-      const networkKey = network
+      // Format plan ID for backend
+      // Frontend: "mtn-sme-1gb" -> Backend expects plan="sme-1gb" (it prepends network)
+      const planCode = selectedPlan?.id.replace(`${network}-`, "") || "";
 
       const payload = {
-        network: networkKey,
-        plan: selectedPlan?.id || "",
+        network: network,
+        plan: planCode,
         phone: phoneNumber,
-        amount: selectedPlan?.amount || 0,
         transaction_pin: pin
       };
 
-      const res = await fetch(`${API_BASE_URL}/api/data/buy`, {
+      const res = await fetch(`${API_BASE_URL}/api/services/data/buy`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

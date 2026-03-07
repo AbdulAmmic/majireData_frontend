@@ -195,7 +195,7 @@ export default function BuyAirtimePage() {
         transaction_pin: pin
       };
 
-      const res = await fetch(`${API_BASE_URL}/api/airtime/buy`, {
+      const res = await fetch(`${API_BASE_URL}/api/services/airtime/topup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
