@@ -47,7 +47,7 @@ export default function ElectricityPage() {
             try {
                 const token = localStorage.getItem("token");
                 if (!token) return;
-                const res = await fetch(`${API_BASE_URL}/api/services/plans?service=ELECTRICITY`, {
+                const res = await fetch(`${API_BASE_URL}/peyflex/electricity/plans/?identifier=electricity`, {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
                 const body = await res.json();
@@ -70,7 +70,7 @@ export default function ElectricityPage() {
 
         try {
             const token = localStorage.getItem("token");
-            const res = await fetch(`${API_BASE_URL}/api/services/validate/meter?meternumber=${meterNumber}&disconame=${selectedDisco}&mtype=${meterType}`, {
+            const res = await fetch(`${API_BASE_URL}/peyflex/electricity/verify/?identifier=electricity&meter=${meterNumber}&plan=${selectedDisco}&type=${meterType}`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
             const data = await res.json();
@@ -103,17 +103,21 @@ export default function ElectricityPage() {
 
         try {
             const token = localStorage.getItem("token");
-            const res = await fetch(`${API_BASE_URL}/api/services/electricity/pay`, {
+            const userPhone = JSON.parse(localStorage.getItem("user") || "{}").phone || "08000000000";
+
+            const res = await fetch(`${API_BASE_URL}/peyflex/electricity/subscribe/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    disco: selectedDisco,
+                    identifier: "electricity",
+                    plan: selectedDisco,
                     meter: meterNumber,
-                    mtype: meterType,
+                    type: meterType,
                     amount: amount,
+                    phone: userPhone,
                     transaction_pin: pin
                 })
             });

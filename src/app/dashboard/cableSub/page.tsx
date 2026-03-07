@@ -139,7 +139,7 @@ export default function CableSubscriptionPage() {
   const [fetchedPackages, setFetchedPackages] = useState<CablePackage[]>([]);
   const [loadingPackages, setLoadingPackages] = useState(false);
 
-  // Fetch packages on mount
+  // Fetch packages on mount or provider change
   useEffect(() => {
     async function fetchPackages() {
       setLoadingPackages(true);
@@ -147,31 +147,25 @@ export default function CableSubscriptionPage() {
         const token = localStorage.getItem("token");
         if (!token) return;
 
-        const res = await fetch(`${API_BASE_URL}/api/services/plans?service=CABLE`, {
+        const res = await fetch(`${API_BASE_URL}/peyflex/cable/plans/${provider}/`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
         const body = await res.json();
         if (res.ok) {
-          // Map backend response to CablePackage
-          const mapped: CablePackage[] = body.data.map((item: any) => ({
-            id: item.id,
-            name: item.name,
-            amount: item.amount,
+          const items = Array.isArray(body) ? body : (body.data || []);
+          const mapped: CablePackage[] = items.map((item: any) => ({
+            id: item.id || item.plan_id || item.code || item.package,
+            name: item.name || item.package_name,
+            amount: item.amount || item.price || 0,
             duration: "1 Month", // Default
-            description: item.name,
-            channels: 0, // Not available from simplified endpoint
-            features: [],
-            provider: item.cable_provider // Store provider ID to filter key mapping
+            description: item.name || item.package_name || "Cable Plan",
+            channels: item.channels || 0, // Not available from simplified endpoint
+            features: item.features || [],
+            providerKey: provider
           }));
-          // Map provider IDs (1,2,3) to keys (gotv, dstv, startimes)
-          const refined = mapped.map(p => {
-            if (p.provider === "1") p.providerKey = "gotv";
-            else if (p.provider === "2") p.providerKey = "dstv";
-            else if (p.provider === "3") p.providerKey = "startimes";
-            else p.providerKey = "other";
-            return p;
-          });
-          setFetchedPackages(refined);
+          setFetchedPackages(mapped);
+        } else {
+          setFetchedPackages([]);
         }
       } catch (err) {
         console.error(err);
@@ -180,11 +174,9 @@ export default function CableSubscriptionPage() {
       }
     }
     fetchPackages();
-  }, []);
+  }, [provider]);
 
-  const availablePackages = useMemo(() => {
-    return fetchedPackages.filter((pkg: any) => pkg.providerKey === provider);
-  }, [provider, fetchedPackages]);
+  const availablePackages = fetchedPackages;
 
   const selectedPackage = useMemo(() =>
     availablePackages.find((p) => p.id === selectedPackageId) || null,
@@ -256,17 +248,17 @@ export default function CableSubscriptionPage() {
     setSubmitting(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API_BASE_URL}/api/services/cable/subscribe`, {
+      const res = await fetch(`${API_BASE_URL}/peyflex/cable/subscribe/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({
-          cable_name: provider,
-          smart_card_number: smartCardNumber,
-          package: selectedPackage?.id || "",
-          amount: calculateTotalAmount(),
+          identifier: provider,
+          iuc: smartCardNumber,
+          plan: selectedPackage?.id || "",
+          amount: calculateTotalAmount().toString(),
           phone: customerPhone,
           transaction_pin: pin
         })

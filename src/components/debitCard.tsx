@@ -14,39 +14,45 @@ export default function BalanceCard() {
       setUser(initialUser);
     }
 
-    // 2. Fetch latest balance from API
-    const fetchBalance = async () => {
+    // 2. Fetch latest balance and profile from API
+    const fetchUserData = async () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) return;
 
-        const res = await fetch(`${API_BASE_URL}/api/wallet/me`, {
-          headers: {
-            "Authorization": `Bearer ${token}`
-          }
+        // Fetch Balance
+        const balanceRes = await fetch(`${API_BASE_URL}/peyflex/wallet/balance/`, {
+          headers: { "Authorization": `Bearer ${token}` }
         });
 
-        if (res.ok) {
-          const data = await res.json();
-          // Update user object with new balance
-          if (data.success) {
-            setUser((prev: any) => ({
-              ...prev,
-              wallet_balance: data.data.balance_kobo / 100 // Convert kobo to naira if needed or store as is. Backend says / 100.
-              // backend: "balance_kobo": balance, "balance_naira": ...
-              // Let's use the one from response or stick to existing structure
-            }));
+        // Fetch Profile
+        const profileRes = await fetch(`${API_BASE_URL}/peyflex/user/profile/`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
 
-            // Optionally update localStorage?
-            // localStorage.setItem("user", JSON.stringify({...initialUser, wallet_balance: ...}));
-          }
+        if (balanceRes.ok) {
+          const balanceData = await balanceRes.json();
+          setUser((prev: any) => ({
+            ...prev,
+            // Handle different possible Payflex response structures
+            wallet_balance: balanceData.balance || balanceData.data?.balance || balanceData.balance_naira || (balanceData.data?.balance_kobo ? balanceData.data.balance_kobo / 100 : 0)
+          }));
+        }
+
+        if (profileRes.ok) {
+          const profileData = await profileRes.json();
+          setUser((prev: any) => ({
+            ...prev,
+            ...(profileData.data || profileData), // merge profile data securely
+            full_name: profileData.data?.full_name || profileData.full_name || prev?.full_name
+          }));
         }
       } catch (err) {
-        console.error("Failed to fetch balance", err);
+        console.error("Failed to fetch robust user data from Payflex", err);
       }
     };
 
-    fetchBalance();
+    fetchUserData();
   }, []);
 
   const formatCurrency = (amount: number) => {
