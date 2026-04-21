@@ -42,8 +42,8 @@ export default function Sidebar({
     <>
       {/* Sidebar fixed for both mobile and desktop */}
       <aside
-        className={`fixed top-0 left-0 h-full bg-white border-r border-gray-100 z-50 transition-all duration-300 ease-in-out
-          ${sidebarOpen ? "translate-x-0 w-64 shadow-2xl" : "-translate-x-full lg:translate-x-0 lg:w-64"}`}
+        className={`fixed top-0 left-0 h-full bg-white border-r border-[#f1f5f9] z-50 transition-all duration-300 ease-in-out
+          ${sidebarOpen ? "translate-x-0 w-64 shadow-xl shadow-slate-200/50" : "-translate-x-full lg:translate-x-0 lg:w-64"}`}
       >
         <div className="flex flex-col h-full">
           {/* ... branding etc ... */}

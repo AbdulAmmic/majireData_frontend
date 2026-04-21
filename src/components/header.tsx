@@ -14,32 +14,32 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-lg border-b border-gray-100/50">
+    <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-xl border-b border-[#f1f5f9]">
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-4">
           <button
-            className="lg:hidden text-gray-600 hover:text-gray-900 transition-colors"
+            className="lg:hidden text-slate-500 hover:text-slate-900 transition-colors"
             onClick={() => setSidebarOpen(true)}
           >
-            <Menu className="w-6 h-6" />
+            <Menu className="w-5 h-5" />
           </button>
 
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg overflow-hidden bg-blue-50 flex items-center justify-center lg:hidden">
+          <div className="flex items-center gap-2 lg:hidden">
+            <div className="w-9 h-9 rounded-2xl overflow-hidden bg-white border border-[#f1f5f9] flex items-center justify-center shadow-sm">
               <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent lg:hidden">
-              247MiData
+            <span className="text-xl font-black tracking-tight bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent">
+              Majire
             </span>
           </div>
 
           {/* Search Bar */}
           <div className="relative hidden md:block">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <Search className="w-3.5 h-3.5 absolute left-3.5 top-1/2 transform -translate-y-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder="Search transactions, services..."
-              className="pl-10 pr-4 py-2 bg-gray-50/50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all w-64"
+              placeholder="Search services..."
+              className="pl-10 pr-4 py-2 bg-slate-50/50 border border-[#f1f5f9] rounded-2xl text-[13px] font-medium text-slate-600 focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500/30 transition-all w-64"
             />
           </div>
         </div>

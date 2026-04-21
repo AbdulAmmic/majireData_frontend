@@ -110,50 +110,45 @@ export default function RecentTransactions({
   }
 
   return (
-    <div className="bg-white border border-gray-100/50 rounded-2xl p-6 shadow-sm">
-      <div className="flex items-center justify-between mb-6">
+    <div className="w-full">
+      <div className="flex items-center justify-between mb-8 px-1">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">Recent Transactions</h3>
-          <p className="text-sm text-gray-500 mt-1">Your latest activities</p>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Live Feed</p>
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <p className="text-sm font-bold text-slate-600">Updated recently</p>
+          </div>
         </div>
         {showViewAll && (
-          <button className="flex items-center gap-1 text-blue-600 text-sm font-medium hover:text-blue-700 transition-colors group">
+          <button className="flex items-center gap-2 text-blue-600 text-[10px] font-black uppercase tracking-wider bg-blue-50/50 px-3 py-2 rounded-xl hover:bg-blue-100 transition-all group">
             View All
-            <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+            <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
           </button>
         )}
       </div>
 
       {displayTransactions.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          No transactions yet.
+        <div className="text-center py-10 text-slate-400 font-medium text-xs">
+          No records found
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {displayTransactions.map((transaction) => (
             <div
               key={transaction.id}
-              className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50/50 transition-all duration-200 group cursor-pointer border border-transparent hover:border-gray-100"
+              className="flex items-center justify-between p-3.5 rounded-[1.25rem] hover:bg-slate-50/50 transition-all duration-300 group cursor-pointer border border-transparent hover:border-[#f1f5f9]"
             >
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${getTransactionColor(transaction.type, transaction.category)}`}>
+              <div className="flex items-center gap-4">
+                <div className={`p-2.5 rounded-xl ${getTransactionColor(transaction.type, transaction.category)} shadow-sm`}>
                   {getTransactionIcon(transaction.type, transaction.category)}
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">{transaction.title}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <p className="text-xs text-gray-500">{transaction.date}</p>
-                    {transaction.category && (
-                      <>
-                        <span className="text-gray-300">•</span>
-                        <span className="text-xs text-gray-400">{transaction.category}</span>
-                      </>
-                    )}
-                  </div>
+                  <p className="text-[13px] font-bold text-slate-900 tracking-tight leading-none mb-1.5">{transaction.title}</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{transaction.date}</p>
                 </div>
               </div>
               <p
-                className={`text-sm font-semibold ${transaction.type === 'credit' ? 'text-green-600' : 'text-gray-900'
+                className={`text-[13px] font-black tracking-tight ${transaction.type === 'credit' ? 'text-emerald-600' : 'text-slate-900'
                   }`}
               >
                 {transaction.amount}
@@ -164,15 +159,12 @@ export default function RecentTransactions({
       )}
 
       {/* Summary Section */}
-      <div className="mt-6 pt-4 border-t border-gray-100">
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-600">Total this month</span>
-          <div className="flex items-center gap-4">
-            {/* Note: Calculating real totals requires more data/logic not implemented here yet */}
-            <span className="text-gray-900 font-bold">---</span>
-          </div>
+      <div className="mt-8 pt-5 border-t border-[#f1f5f9]">
+        <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-widest text-slate-400">
+          <span>Monthly Volume</span>
+          <span className="text-slate-900">₦---</span>
         </div>
       </div>
     </div>
   );
-}
+}

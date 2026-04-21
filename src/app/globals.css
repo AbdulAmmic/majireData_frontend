@@ -1,12 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
+  --background: #fdfdfd;
   --foreground: #0f172a;
   --primary: #2563eb;
   --radius-xl: 1.5rem;
   --radius-2xl: 2rem;
   --radius-3xl: 2.5rem;
+  --border-color: rgba(241, 245, 249, 1);
 }
 
 @theme inline {
@@ -19,11 +20,10 @@
   --radius-3xl: var(--radius-3xl);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #020617;
-    --foreground: #f8fafc;
-  }
+/* Force Light Theme regardless of device settings */
+:root {
+  --background: #fdfdfd;
+  --foreground: #0f172a;
 }
 
 body {
@@ -36,20 +36,25 @@ body {
 
 @layer utilities {
   .glass-card {
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 15px -10px rgba(0, 0, 0, 0.05);
   }
 
   .premium-gradient {
-    background: linear-gradient(135deg, #2563eb 0%, #4f46e5 50%, #6366f1 100%);
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%);
   }
 
   .soft-shadow {
-    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.04), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+    box-shadow: 0 10px 40px -15px rgba(0, 0, 0, 0.03);
   }
+}
+
+/* Subtle Borders */
+.border-subtle {
+  border: 1px solid var(--border-color);
 }
 
 /* Custom Scrollbar */
