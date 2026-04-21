@@ -29,7 +29,7 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
               <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
             </div>
             <span className="text-xl font-black tracking-tight bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent">
-              Majire
+
             </span>
           </div>
 
