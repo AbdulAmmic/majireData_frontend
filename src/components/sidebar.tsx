@@ -48,20 +48,20 @@ export default function Sidebar({
         <div className="flex flex-col h-full">
           {/* ... branding etc ... */}
           <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between p-6 border-b border-gray-100/50">
+            <div className="flex items-center justify-between p-5 border-b border-gray-100/50">
               <button
                 onClick={() => handleNavigation("/dashboard")}
                 className="flex items-center gap-3 hover:opacity-90 transition-opacity"
               >
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden bg-white">
-                  <img src="/logo.png" alt="247MiData" className="w-full h-full object-contain" />
+                <div className="w-9 h-9 rounded-2xl flex items-center justify-center overflow-hidden bg-white shadow-sm ring-1 ring-black/5">
+                  <img src="/logo.png" alt="Majire" className="w-full h-full object-contain" />
                 </div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-                  247MiData
+                <h1 className="text-xl font-black tracking-tight bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent">
+                  Majire
                 </h1>
               </button>
               <button
-                className="lg:hidden text-gray-400 hover:text-gray-600 transition-colors"
+                className="lg:hidden text-gray-400 hover:text-gray-600 transition-colors p-2"
                 onClick={() => setSidebarOpen(false)}
               >
                 <X className="w-5 h-5" />
@@ -224,15 +224,14 @@ export default function Sidebar({
             </nav>
 
             {/* User Profile */}
-            {/* User Profile */}
-            <div className="p-4 border-t border-gray-100/50 space-y-2">
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50/50 w-full text-left">
-                <div className="w-8 h-8 bg-gradient-to-br from-gray-600 to-gray-400 rounded-full flex items-center justify-center">
+            <div className="p-4 border-t border-gray-100/50 space-y-2 bg-slate-50/30">
+              <div className="flex items-center gap-3 p-3 rounded-2xl bg-white border border-slate-100 shadow-sm w-full text-left">
+                <div className="w-9 h-9 bg-slate-900 rounded-xl flex items-center justify-center shadow-lg shadow-slate-200">
                   <User className="w-4 h-4 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">Abdurrahman Mustapha</p>
-                  <p className="text-xs text-gray-500 truncate">Staff</p>
+                  <p className="text-sm font-bold text-slate-900 truncate tracking-tight">Profile</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 truncate">Account Manager</p>
                 </div>
               </div>
 
@@ -244,9 +243,9 @@ export default function Sidebar({
                     window.location.href = "/";
                   }
                 }}
-                className="flex items-center gap-3 p-3 rounded-xl text-red-600 hover:bg-red-50 transition-colors w-full text-left font-medium"
+                className="flex items-center gap-3 p-3 text-red-500 hover:bg-rose-50 hover:text-rose-600 rounded-2xl transition-all w-full text-left font-bold text-xs uppercase tracking-widest"
               >
-                <LogOut className="w-5 h-5" />
+                <LogOut className="w-4 h-4" />
                 <span>Log Out</span>
               </button>
             </div>

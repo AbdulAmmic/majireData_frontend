@@ -70,9 +70,9 @@ export default function DashboardPage() {
         <Header setSidebarOpen={setSidebarOpen} />
 
         {/* CONTENT */}
-        <main className="flex-1 p-6 space-y-6 max-w-6xl mx-auto w-full">
+        <main className="flex-1 p-5 md:p-8 space-y-8 max-w-[1400px] mx-auto w-full overflow-x-hidden">
           {/* WELCOME AND BALANCE SECTION */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
             <WelcomeCard />
             <BalanceCard />
           </div>
@@ -81,34 +81,40 @@ export default function DashboardPage() {
           <QuickActions />
 
           {/* USSD BALANCE CHECKS */}
-          <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <span className="w-1.5 h-6 bg-blue-600 rounded-full"></span>
-              Check Balance USSD Codes
+          <div className="glass-card rounded-[2.5rem] soft-shadow p-6 transition-all duration-300 hover:shadow-md">
+            <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 mb-6 flex items-center gap-3 ml-1">
+              <span className="w-1.5 h-4 premium-gradient rounded-full"></span>
+              Balance Verification
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-xl border border-yellow-100">
+              <div className="flex items-center justify-between p-5 bg-amber-50/50 rounded-[1.75rem] border border-amber-100/50 group hover:bg-amber-50 transition-colors">
                 <div>
-                  <p className="text-xs font-bold text-yellow-800 uppercase tracking-wider">MTN SME Balance</p>
-                  <p className="text-2xl font-black text-yellow-900 font-mono">*461*4#</p>
+                  <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-1.5">MTN SME Balance</p>
+                  <p className="text-3xl font-black text-amber-900 font-mono tracking-tighter">*461*4#</p>
                 </div>
-                <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center text-white font-bold">MTN</div>
+                <div className="w-14 h-14 bg-amber-400 rounded-2xl flex items-center justify-center text-white font-black shadow-lg shadow-amber-200 transition-transform group-hover:scale-110">MTN</div>
               </div>
-              <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-100">
+              <div className="flex items-center justify-between p-5 bg-blue-50/50 rounded-[1.75rem] border border-blue-100/50 group hover:bg-blue-50 transition-colors">
                 <div>
-                  <p className="text-xs font-bold text-blue-800 uppercase tracking-wider">Gifting/Corporate Balance</p>
-                  <p className="text-2xl font-black text-blue-900 font-mono">*323*4#</p>
+                  <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1.5">Gifting/CG Balance</p>
+                  <p className="text-3xl font-black text-blue-900 font-mono tracking-tighter">*323*4#</p>
                 </div>
-                <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">C/G</div>
+                <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-black shadow-lg shadow-blue-200 transition-transform group-hover:scale-110">C/G</div>
               </div>
             </div>
-          </section>
+          </div>
 
           {/* RECENT TRANSACTIONS & ACTIVITY */}
-          <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <RecentTransactions />
-            <ActivityChart />
-          </section>
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 pb-10">
+            <div className="glass-card rounded-[2.5rem] p-6 soft-shadow">
+               <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 mb-6 ml-1">Recent Activity</h3>
+               <RecentTransactions />
+            </div>
+            <div className="glass-card rounded-[2.5rem] p-6 soft-shadow">
+               <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 mb-6 ml-1">Volume Analytics</h3>
+               <ActivityChart />
+            </div>
+          </div>
         </main>
       </div>
     </div>

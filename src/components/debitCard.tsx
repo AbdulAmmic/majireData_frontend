@@ -64,40 +64,46 @@ export default function BalanceCard() {
   if (!user) return <div className="animate-pulse bg-gray-200 h-48 rounded-2xl"></div>;
 
   return (
-    <div className="bg-gradient-to-br from-blue-600 to-blue-500 text-white rounded-2xl p-6 shadow-lg shadow-blue-500/25">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Wallet className="w-4 h-4 opacity-90" />
-          <span className="text-sm opacity-90">Available Balance</span>
+    <div className="premium-gradient text-white rounded-[2.5rem] p-5 shadow-xl shadow-blue-500/20 transition-transform duration-300 hover:scale-[1.02]">
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-2.5">
+          <div className="bg-white/20 p-2 rounded-2xl backdrop-blur-sm">
+            <Wallet className="w-4 h-4" />
+          </div>
+          <span className="text-xs font-bold uppercase tracking-widest opacity-80">Available Funds</span>
         </div>
-        <MoreVertical className="w-4 h-4 opacity-70" />
+        <button className="p-2 hover:bg-white/10 rounded-xl transition-colors">
+          <MoreVertical className="w-4 h-4 opacity-70" />
+        </button>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div>
-          <p className="text-2xl font-bold tracking-tight">
+          <p className="text-3xl font-black tracking-tight mb-1">
             {formatCurrency(user.wallet_balance || 0)}
           </p>
-          <p className="text-xs opacity-80 mt-1">{user.full_name}</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest opacity-60 ml-0.5">{user.full_name}</p>
         </div>
 
         {user.virtual_account ? (
-          <div className="flex items-center justify-between text-xs opacity-80">
-            <div>
-              <p>{user.virtual_account.bank_name}</p>
-              <p className="font-mono text-base font-semibold mt-0.5">{user.virtual_account.account_number}</p>
-              <p className="opacity-75">{user.virtual_account.account_name}</p>
+          <div className="bg-white/10 border border-white/10 p-3.5 rounded-[1.75rem] backdrop-blur-sm relative overflow-hidden group">
+            <div className="relative z-10">
+              <p className="text-[10px] font-bold uppercase tracking-wider opacity-60 mb-1">{user.virtual_account.bank_name}</p>
+              <div className="flex items-center justify-between">
+                <p className="font-mono text-lg font-bold tracking-wider">{user.virtual_account.account_number}</p>
+                <button
+                  onClick={() => copyToClipboard(user.virtual_account.account_number)}
+                  className="bg-white/20 hover:bg-white/30 p-2 rounded-xl transition-all active:scale-95"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <p className="text-[10px] font-medium opacity-50 mt-1 truncate">{user.virtual_account.account_name}</p>
             </div>
-            <button
-              onClick={() => copyToClipboard(user.virtual_account.account_number)}
-              className="bg-white/20 hover:bg-white/30 p-2 rounded-lg transition-colors"
-            >
-              <Copy className="w-4 h-4" />
-            </button>
           </div>
         ) : (
-          <div className="text-xs opacity-80">
-            <p>No account details available.</p>
+          <div className="text-xs opacity-60 italic py-2">
+            <p>No investment details available.</p>
           </div>
         )}
       </div>

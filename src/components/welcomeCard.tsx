@@ -14,18 +14,18 @@ export default function WelcomeCard() {
   }, []);
 
   return (
-    <div className="lg:col-span-2 bg-gradient-to-br from-white to-gray-50/50 border border-gray-100/50 rounded-2xl p-6 shadow-sm">
+    <div className="lg:col-span-2 glass-card rounded-3xl p-5 soft-shadow transition-all duration-300 hover:shadow-md">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          <h1 className="text-xl md:text-2xl font-extrabold text-slate-900 mb-1 tracking-tight">
             Good Day, {name}! 👋
           </h1>
-          <p className="text-gray-600 text-sm">
+          <p className="text-slate-500 text-sm font-medium">
             Here's what's happening with your account today.
           </p>
         </div>
-        <div className="text-xs text-gray-500 bg-gray-100/50 px-3 py-1 rounded-full">
-          Today
+        <div className="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50/50 border border-blue-100/50 px-2.5 py-1 rounded-full">
+          Live Status
         </div>
       </div>
     </div>
