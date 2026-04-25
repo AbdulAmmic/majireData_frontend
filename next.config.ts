@@ -5,15 +5,15 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: "https://dataapi-ammicsystems4174-jwcvwnu9.leapcell.dev/api/:path*",
+        destination: "https://data-api-8a5a.onrender.com/api/:path*",
       },
       {
         source: "/webhooks/:path*",
-        destination: "https://dataapi-ammicsystems4174-jwcvwnu9.leapcell.dev/webhooks/:path*",
+        destination: "https://data-api-8a5a.onrender.com/webhooks/:path*",
       },
       {
         source: "/health",
-        destination: "https://dataapi-ammicsystems4174-jwcvwnu9.leapcell.dev/health",
+        destination: "https://data-api-8a5a.onrender.com/health",
       }
     ];
   },
