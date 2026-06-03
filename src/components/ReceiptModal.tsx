@@ -1,6 +1,6 @@
 "use client";
 
-import { X, Printer, Share2, CheckCircle, Clock, AlertCircle } from "lucide-react";
+import { X, Printer, Check, Clock, AlertCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface ReceiptModalProps {
@@ -27,129 +27,112 @@ export default function ReceiptModal({ isOpen, onClose, transaction }: ReceiptMo
     const statusKey = transaction.status as "SUCCESS" | "PENDING" | "FAILED";
 
     const StatusIcon = {
-        SUCCESS: <CheckCircle className="w-12 h-12 text-green-500" />,
-        PENDING: <Clock className="w-12 h-12 text-yellow-500" />,
-        FAILED: <AlertCircle className="w-12 h-12 text-red-500" />
-    }[statusKey] || <Clock className="w-12 h-12 text-gray-500" />;
+        SUCCESS: <Check className="w-5 h-5 text-emerald-500" />,
+        PENDING: <Clock className="w-5 h-5 text-amber-500" />,
+        FAILED: <AlertCircle className="w-5 h-5 text-rose-500" />
+    }[statusKey] || <Clock className="w-5 h-5 text-slate-500" />;
 
-    const statusColor = {
-        SUCCESS: "text-green-600 bg-green-50 border-green-100",
-        PENDING: "text-yellow-600 bg-yellow-50 border-yellow-100",
-        FAILED: "text-red-600 bg-red-50 border-red-100"
-    }[statusKey] || "text-gray-600 bg-gray-50 border-gray-100";
+    const statusBadge = {
+        SUCCESS: "text-emerald-700 bg-emerald-50 border-emerald-200",
+        PENDING: "text-amber-700 bg-amber-50 border-amber-200",
+        FAILED: "text-rose-700 bg-rose-50 border-rose-200"
+    }[statusKey] || "text-slate-700 bg-slate-50 border-slate-200";
 
-    // Safely extract details
     const details = transaction.details || {};
-    const providerResp = transaction.details?.provider || {}; // Sometimes provider details are deeper?
-    // Based on backend: details = json.loads(p.response_payload)
-
-    // Attempt to find Token/PIN
-    // EPIN: tokens (string or list)
-    // DATA/AIRTIME: usually just status, but maybe some ref
-    // AIRTIME PIN: pin info
+    
+    // Extract Beneficiary Phone
+    const beneficiary = details.phone || details.mobile_number || details.meter_number || details.iuc || null;
 
     let tokenDisplay = null;
-
-    // Check for tokens/pins in various places
     if (details.tokens) {
-        tokenDisplay = (
-            <div className="bg-gray-100 p-4 rounded-lg text-center font-mono text-lg tracking-widest border border-dashed border-gray-300">
-                {details.tokens}
-            </div>
-        );
-    } else if (details.pin) { // Sometimes standardized as pin
-        tokenDisplay = (
-            <div className="bg-gray-100 p-4 rounded-lg text-center font-mono text-lg tracking-widest border border-dashed border-gray-300">
-                {details.pin}
-            </div>
-        );
+        tokenDisplay = details.tokens;
+    } else if (details.pin) {
+        tokenDisplay = details.pin;
     }
 
     return (
-        <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-200 ${isOpen ? "opacity-100 visible" : "opacity-0 invisible"}`}>
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+        <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 transition-all duration-300 ${isOpen ? "opacity-100 visible" : "opacity-0 invisible"}`}>
+            {/* Minimal Backdrop */}
+            <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-sm" onClick={onClose} />
 
-            <div className={`relative w-full max-w-md bg-white rounded-3xl shadow-2xl transform transition-all duration-300 ${isOpen ? "scale-100 translate-y-0" : "scale-95 translate-y-4"} overflow-hidden print:shadow-none print:w-full print:max-w-none`}>
-
-                {/* Header Pattern */}
-                <div className="h-24 bg-gradient-to-r from-blue-600 to-purple-600 relative overflow-hidden">
-                    <div className="absolute inset-0 opacity-20 bg-[url('/noise.png')]"></div>
-                    <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-white/20 rounded-full blur-2xl"></div>
-                    <div className="absolute top-0 right-0 p-4">
-                        <button onClick={onClose} className="bg-black/20 hover:bg-black/40 text-white p-2 rounded-full transition-colors print:hidden">
-                            <X className="w-5 h-5" />
-                        </button>
-                    </div>
+            {/* Receipt Container */}
+            <div className={`relative w-full max-w-sm bg-white rounded-2xl shadow-xl transform transition-all duration-300 ${isOpen ? "scale-100 translate-y-0" : "scale-95 translate-y-4"} overflow-hidden print:shadow-none print:w-full print:max-w-none print:rounded-none`}>
+                
+                {/* Header Action */}
+                <div className="absolute top-4 right-4 print:hidden">
+                    <button onClick={onClose} className="p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 rounded-full transition-colors">
+                        <X className="w-5 h-5" />
+                    </button>
                 </div>
 
-                <div className="px-8 pb-8 -mt-12 relative">
-                    <div className="flex flex-col items-center">
-                        <div className="bg-white p-2 rounded-full shadow-lg mb-4">
+                <div className="p-8">
+                    {/* Brand / Title */}
+                    <div className="text-center mb-8">
+                        <h2 className="text-lg font-black tracking-tight text-slate-900 uppercase">247MiData</h2>
+                        <p className="text-[10px] text-slate-400 font-medium tracking-widest uppercase mt-1">Transaction Receipt</p>
+                    </div>
+
+                    {/* Status & Amount */}
+                    <div className="flex flex-col items-center justify-center mb-8 border-b border-dashed border-slate-200 pb-8">
+                        <div className={`flex items-center gap-2 px-3 py-1 rounded-full border ${statusBadge} mb-4`}>
                             {StatusIcon}
+                            <span className="text-[10px] font-bold uppercase tracking-wider">{transaction.status}</span>
+                        </div>
+                        <span className="text-sm text-slate-500 mb-1">Amount Paid</span>
+                        <span className="text-3xl font-black text-slate-900 tracking-tighter">{transaction.amount}</span>
+                    </div>
+
+                    {/* Details List */}
+                    <div className="space-y-4 text-sm">
+                        <div className="flex justify-between items-center">
+                            <span className="text-slate-500 font-medium">Service</span>
+                            <span className="font-bold text-slate-900">{transaction.service}</span>
                         </div>
 
-                        <h2 className="text-2xl font-bold text-gray-900 mb-1">Transaction Receipt</h2>
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold border ${statusColor}`}>
-                            {transaction.status}
-                        </span>
-
-                        <div className="w-full mt-8 space-y-6">
-                            <div className="flex justify-between items-center border-b border-gray-100 pb-2">
-                                <span className="text-gray-500 text-sm">Service</span>
-                                <span className="font-semibold text-gray-900">{transaction.service}</span>
+                        {beneficiary && (
+                            <div className="flex justify-between items-center">
+                                <span className="text-slate-500 font-medium">Phone / Beneficiary</span>
+                                <span className="font-bold text-slate-900">{beneficiary}</span>
                             </div>
+                        )}
 
-                            <div className="flex justify-between items-center border-b border-gray-100 pb-2">
-                                <span className="text-gray-500 text-sm">Amount</span>
-                                <span className="font-bold text-xl text-gray-900">{transaction.amount}</span>
-                            </div>
-
-                            <div className="flex justify-between items-center border-b border-gray-100 pb-2">
-                                <span className="text-gray-500 text-sm">Date</span>
-                                <span className="font-medium text-gray-900 text-sm text-right">
-                                    {new Date(transaction.date).toLocaleString()}
-                                </span>
-                            </div>
-
-                            <div className="flex justify-between items-center border-b border-gray-100 pb-2">
-                                <span className="text-gray-500 text-sm">Reference</span>
-                                <span className="font-mono text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded">
-                                    {transaction.id}
-                                </span>
-                            </div>
-
-                            {/* Dynamic Details */}
-                            {details.mobile_number && (
-                                <div className="flex justify-between items-center border-b border-gray-100 pb-2">
-                                    <span className="text-gray-500 text-sm">Beneficiary</span>
-                                    <span className="font-medium text-gray-900">{details.mobile_number}</span>
-                                </div>
-                            )}
-
-                            {tokenDisplay && (
-                                <div className="mt-4">
-                                    <div className="text-center text-sm text-gray-500 mb-2">Token / PIN</div>
-                                    {tokenDisplay}
-                                </div>
-                            )}
-
+                        <div className="flex justify-between items-center">
+                            <span className="text-slate-500 font-medium">Date</span>
+                            <span className="font-bold text-slate-900 text-right">
+                                {new Date(transaction.date).toLocaleString(undefined, { 
+                                    year: 'numeric', month: 'short', day: 'numeric', 
+                                    hour: '2-digit', minute: '2-digit' 
+                                })}
+                            </span>
                         </div>
 
-                        {/* Actions */}
-                        <div className="flex gap-4 w-full mt-8 print:hidden">
-                            <button
-                                onClick={handlePrint}
-                                className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition-colors"
-                            >
-                                <Printer className="w-4 h-4" />
-                                Print
-                            </button>
-                            {/* Share button could use navigator.share if available */}
+                        <div className="flex justify-between items-center">
+                            <span className="text-slate-500 font-medium">Reference</span>
+                            <span className="font-mono text-[11px] font-bold text-slate-600 bg-slate-100 px-2 py-1 rounded">
+                                {transaction.id}
+                            </span>
                         </div>
+                    </div>
 
-                        <div className="mt-6 text-center">
-                            <p className="text-xs text-gray-400">Thank you for using 247MiData</p>
+                    {/* Token / PIN Section */}
+                    {tokenDisplay && (
+                        <div className="mt-6 pt-6 border-t border-dashed border-slate-200">
+                            <p className="text-center text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-2">Token / PIN</p>
+                            <div className="bg-slate-50 p-4 rounded-xl text-center font-mono text-lg font-black tracking-widest text-slate-900 border border-slate-200">
+                                {tokenDisplay}
+                            </div>
                         </div>
+                    )}
+
+                    {/* Actions */}
+                    <div className="mt-8 pt-6 border-t border-slate-100 print:hidden">
+                        <button
+                            onClick={handlePrint}
+                            className="w-full flex items-center justify-center gap-2 py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold transition-colors text-sm"
+                        >
+                            <Printer className="w-4 h-4" />
+                            Print Receipt
+                        </button>
                     </div>
                 </div>
             </div>
