@@ -16,8 +16,15 @@ export default function AdminPricingPage() {
         provider_cost_naira: "",
         markup_type: "FLAT",
         markup_value: "",
-        active: true
+        active: true,
+        name: "",
+        network: "",
+        plan_type: "",
+        validity: ""
     });
+
+    const needsNetwork = ["DATA", "AIRTIME", "CABLE"].includes(formData.service);
+    const needsPlanDetails = formData.service === "DATA";
 
     useEffect(() => {
         fetchPrices();
@@ -102,7 +109,11 @@ export default function AdminPricingPage() {
             provider_cost_naira: item.provider_cost_naira.toString(),
             markup_type: item.markup_type,
             markup_value: item.markup_value.toString(),
-            active: item.active
+            active: item.active,
+            name: item.name || "",
+            network: item.network || "",
+            plan_type: item.plan_type || "",
+            validity: item.validity || ""
         });
         setShowModal(true);
     };
@@ -115,7 +126,11 @@ export default function AdminPricingPage() {
             provider_cost_naira: "",
             markup_type: "FLAT",
             markup_value: "0",
-            active: true
+            active: true,
+            name: "",
+            network: "",
+            plan_type: "",
+            validity: ""
         });
         setShowModal(true);
     };
@@ -142,6 +157,8 @@ export default function AdminPricingPage() {
                         <thead className="bg-gray-50/50 text-gray-900 font-medium">
                             <tr>
                                 <th className="px-6 py-4">Service</th>
+                                <th className="px-6 py-4">Name</th>
+                                <th className="px-6 py-4">Network</th>
                                 <th className="px-6 py-4">Provider Code</th>
                                 <th className="px-6 py-4">Cost (₦)</th>
                                 <th className="px-6 py-4">Markup</th>
@@ -152,13 +169,15 @@ export default function AdminPricingPage() {
                         </thead>
                         <tbody className="divide-y divide-gray-100">
                             {loading ? (
-                                <tr><td colSpan={7} className="px-6 py-8 text-center text-gray-500">Loading...</td></tr>
+                                <tr><td colSpan={9} className="px-6 py-8 text-center text-gray-500">Loading...</td></tr>
                             ) : prices.length === 0 ? (
-                                <tr><td colSpan={7} className="px-6 py-8 text-center text-gray-500">No plans found</td></tr>
+                                <tr><td colSpan={9} className="px-6 py-8 text-center text-gray-500">No plans found</td></tr>
                             ) : (
                                 prices.map((item) => (
                                     <tr key={item.id} className="hover:bg-gray-50/50">
                                         <td className="px-6 py-4 font-medium">{item.service}</td>
+                                        <td className="px-6 py-4">{item.name || "—"}</td>
+                                        <td className="px-6 py-4 uppercase text-xs">{item.network || "—"}</td>
                                         <td className="px-6 py-4 font-mono text-xs">{item.provider_code}</td>
                                         <td className="px-6 py-4">₦{item.provider_cost_naira}</td>
                                         <td className="px-6 py-4">
@@ -209,7 +228,6 @@ export default function AdminPricingPage() {
                                         value={formData.service}
                                         onChange={(e) => setFormData({ ...formData, service: e.target.value })}
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                                        disabled={!!editingItem} // If editing, maybe lock service?
                                     >
                                         <option value="DATA">DATA</option>
                                         <option value="AIRTIME">AIRTIME</option>
@@ -225,10 +243,75 @@ export default function AdminPricingPage() {
                                         value={formData.provider_code}
                                         onChange={(e) => setFormData({ ...formData, provider_code: e.target.value })}
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                                        placeholder="e.g. mtn_1gb"
+                                        placeholder="e.g. 1 (Bilal plan ID)"
                                     />
                                 </div>
                             </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Display Name</label>
+                                <input
+                                    type="text"
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                                    placeholder="e.g. MTN 1GB SME - 30 days"
+                                />
+                            </div>
+
+                            {needsNetwork && (
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Network</label>
+                                        <select
+                                            value={formData.network}
+                                            onChange={(e) => setFormData({ ...formData, network: e.target.value })}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                                        >
+                                            <option value="">Select network</option>
+                                            {formData.service === "CABLE" ? (
+                                                <>
+                                                    <option value="gotv">GOTV</option>
+                                                    <option value="dstv">DSTV</option>
+                                                    <option value="startimes">STARTIMES</option>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <option value="mtn">MTN</option>
+                                                    <option value="airtel">AIRTEL</option>
+                                                    <option value="glo">GLO</option>
+                                                    <option value="9mobile">9MOBILE</option>
+                                                </>
+                                            )}
+                                        </select>
+                                    </div>
+                                    {needsPlanDetails && (
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Plan Type</label>
+                                            <input
+                                                type="text"
+                                                value={formData.plan_type}
+                                                onChange={(e) => setFormData({ ...formData, plan_type: e.target.value })}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                                                placeholder="e.g. SME, GIFTING"
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {needsPlanDetails && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Validity</label>
+                                    <input
+                                        type="text"
+                                        value={formData.validity}
+                                        onChange={(e) => setFormData({ ...formData, validity: e.target.value })}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                                        placeholder="e.g. 30 days"
+                                    />
+                                </div>
+                            )}
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
@@ -240,7 +323,6 @@ export default function AdminPricingPage() {
                                         onChange={(e) => setFormData({ ...formData, provider_cost_naira: e.target.value })}
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                                         placeholder="0.00"
-                                        disabled={!!editingItem} // Usually specific to provider
                                     />
                                 </div>
                                 <div>
