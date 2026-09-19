@@ -5,15 +5,15 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: "https://data-api-8a5a.onrender.com/api/:path*",
+        destination: "https://davis-jesse-victor-fan.trycloudflare.com/api/:path*",
       },
       {
         source: "/webhooks/:path*",
-        destination: "https://data-api-8a5a.onrender.com/webhooks/:path*",
+        destination: "https://davis-jesse-victor-fan.trycloudflare.com/webhooks/:path*",
       },
       {
         source: "/health",
-        destination: "https://data-api-8a5a.onrender.com/health",
+        destination: "https://davis-jesse-victor-fan.trycloudflare.com/health",
       }
     ];
   },
