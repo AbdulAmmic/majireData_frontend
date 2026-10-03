@@ -129,6 +129,9 @@ export default function FundWalletPage() {
     }
   };
 
+  const depositFee: number | null =
+    typeof walletData?.deposit_fee_naira === "number" && walletData.deposit_fee_naira > 0 ? walletData.deposit_fee_naira : null;
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     alert("Copied!");
@@ -309,6 +312,13 @@ export default function FundWalletPage() {
                           </>
                         );
                       })()}
+
+                      {depositFee !== null && (
+                        <p className="text-xs text-gray-500">
+                          A flat fee of <span className="font-semibold">₦{depositFee.toLocaleString()}</span> is deducted from each deposit.
+                          Example: send ₦{(depositFee + 1000).toLocaleString()} and ₦1,000 is added to your wallet.
+                        </p>
+                      )}
                     </div>
                   )}
 
@@ -340,7 +350,7 @@ export default function FundWalletPage() {
                       </button>
 
                       <p className="text-xs text-center text-gray-400">
-                        Secured by Paystack. Minimal transaction fee may apply.
+                        Secured by Paystack.{depositFee !== null ? ` A flat fee of ₦${depositFee.toLocaleString()} is deducted from each deposit.` : ""}
                       </p>
                     </div>
                   )}
