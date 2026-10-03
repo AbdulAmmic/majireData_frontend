@@ -15,6 +15,7 @@ import {
   Zap,
   GraduationCap,
   Banknote,
+  Gift,
   MessageCircle
 } from "lucide-react";
 
@@ -140,6 +141,15 @@ export default function Sidebar({
                   onClick={() => {
                     setActiveView("fund");
                     handleNavigation("/dashboard/fundWallet");
+                  }}
+                />
+                <SidebarItem
+                  icon={<Gift className="w-4 h-4" />}
+                  label="Refer & Earn"
+                  active={activeView === "referral"}
+                  onClick={() => {
+                    setActiveView("referral");
+                    handleNavigation("/dashboard/referral");
                   }}
                 />
               </div>

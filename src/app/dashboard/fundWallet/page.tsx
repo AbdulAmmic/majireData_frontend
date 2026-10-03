@@ -58,16 +58,22 @@ export default function FundWalletPage() {
     fetchWalletData();
   }, []);
 
-  const generateAccount = async () => {
+  const PROVIDER_LABELS: Record<string, string> = { GAFIAPAY: "Gafiapay", PALMPAY: "PalmPay" };
+  const [generating, setGenerating] = useState<string | null>(null);
+
+  const generateAccount = async (provider: string) => {
     setProcessing(true);
+    setGenerating(provider);
     setError("");
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const res = await fetch(`${API_BASE_URL}/api/wallet/dedicated-account/gafia`, {
+      const path = provider === "PALMPAY" ? "palmpay" : "gafia";
+      const res = await fetch(`${API_BASE_URL}/api/wallet/dedicated-account/${path}`, {
         method: "POST",
-        headers: { "Authorization": `Bearer ${token}` }
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: "{}"
       });
 
       const data = await res.json();
@@ -76,13 +82,14 @@ export default function FundWalletPage() {
         throw new Error(data.message || "Failed to generate account");
       }
 
-      alert("Virtual account generated successfully!");
+      alert(`${PROVIDER_LABELS[provider] || "Account"} account generated successfully!`);
       fetchWalletData(); // Refresh to show the new account
 
     } catch (err: any) {
       setError(err.message || "Error generating account");
     } finally {
       setProcessing(false);
+      setGenerating(null);
     }
   };
 
@@ -208,63 +215,100 @@ export default function FundWalletPage() {
                         <Building className="h-8 w-8 text-blue-600" />
                       </div>
 
-                      {walletData?.virtual_account ? (
-                        <>
-                          <h2 className="text-xl font-semibold text-gray-900">Your Dedicated Account</h2>
-                          <p className="text-gray-600">Transfer to this account number to fund your wallet instantly.</p>
+                      {(() => {
+                        const accounts: any[] = walletData?.virtual_accounts ?? (walletData?.virtual_account ? [walletData.virtual_account] : []);
+                        const available: string[] = walletData?.available_providers ?? ["GAFIAPAY"];
+                        const missing = available.filter((p) => !accounts.some((a) => a.provider === p));
 
-                          <div className="bg-gray-50 rounded-xl p-6 border border-gray-200 text-left space-y-4">
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-500 text-sm">Bank Name</span>
-                              <span className="font-bold text-gray-900">{walletData.virtual_account.bank_name}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-500 text-sm">Account Number</span>
-                              <div className="flex items-center gap-2">
-                                <span className="font-mono text-xl font-bold text-blue-600">
-                                  {walletData.virtual_account.account_number}
-                                </span>
-                                <button onClick={() => copyToClipboard(walletData.virtual_account.account_number)}>
-                                  <Copy className="h-4 w-4 text-gray-400 hover:text-blue-600" />
-                                </button>
-                              </div>
-                            </div>
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-500 text-sm">Account Name</span>
-                              <span className="font-semibold text-gray-900">{walletData.virtual_account.account_name}</span>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-2 justify-center text-green-600 text-sm">
-                            <CheckCircle className="h-4 w-4" />
-                            <span>Account Active & Ready</span>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <h2 className="text-xl font-semibold text-gray-900">Get Your Personal Account</h2>
-                          <p className="text-gray-600">
-                            You don't have a dedicated account yet. Generate one instantly to start funding via bank transfer.
-                          </p>
-
-                          {error && <p className="text-red-500 bg-red-50 p-3 rounded-lg text-sm">{error}</p>}
-
-                          <button
-                            onClick={generateAccount}
-                            disabled={processing}
-                            className="bg-blue-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-blue-700 disabled:opacity-50 transition-all flex items-center justify-center gap-2 mx-auto"
-                          >
-                            {processing ? (
+                        return (
+                          <>
+                            {accounts.length > 0 ? (
                               <>
-                                <Loader2 className="h-5 w-5 animate-spin" />
-                                Generating...
+                                <h2 className="text-xl font-semibold text-gray-900">
+                                  {accounts.length > 1 ? "Your Dedicated Accounts" : "Your Dedicated Account"}
+                                </h2>
+                                <p className="text-gray-600">
+                                  {accounts.length > 1
+                                    ? "Transfer to either account number below to fund your wallet instantly."
+                                    : "Transfer to this account number to fund your wallet instantly."}
+                                </p>
+
+                                {accounts.map((acct: any) => (
+                                  <div key={acct.account_number} className="bg-gray-50 rounded-xl p-6 border border-gray-200 text-left space-y-4">
+                                    {accounts.length > 1 && (
+                                      <p className="text-xs font-semibold uppercase tracking-wider text-blue-600">
+                                        {PROVIDER_LABELS[acct.provider] || acct.provider} account
+                                      </p>
+                                    )}
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-gray-500 text-sm">Bank Name</span>
+                                      <span className="font-bold text-gray-900">{acct.bank_name}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-gray-500 text-sm">Account Number</span>
+                                      <div className="flex items-center gap-2">
+                                        <span className="font-mono text-xl font-bold text-blue-600">{acct.account_number}</span>
+                                        <button onClick={() => copyToClipboard(acct.account_number)} aria-label="Copy account number">
+                                          <Copy className="h-4 w-4 text-gray-400 hover:text-blue-600" />
+                                        </button>
+                                      </div>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-gray-500 text-sm">Account Name</span>
+                                      <span className="font-semibold text-gray-900">{acct.account_name}</span>
+                                    </div>
+                                  </div>
+                                ))}
+
+                                <div className="flex items-center gap-2 justify-center text-green-600 text-sm">
+                                  <CheckCircle className="h-4 w-4" />
+                                  <span>{accounts.length > 1 ? "Accounts Active & Ready" : "Account Active & Ready"}</span>
+                                </div>
                               </>
                             ) : (
-                              "Generate Account Number"
+                              <>
+                                <h2 className="text-xl font-semibold text-gray-900">Get Your Personal Account</h2>
+                                <p className="text-gray-600">
+                                  {missing.length > 0
+                                    ? "You do not have a dedicated account yet. Generate one instantly to start funding via bank transfer."
+                                    : "Bank-transfer accounts are not available right now. You can fund with your card instead."}
+                                </p>
+                              </>
                             )}
-                          </button>
-                        </>
-                      )}
+
+                            {error && <p className="text-red-500 bg-red-50 p-3 rounded-lg text-sm">{error}</p>}
+
+                            {missing.length > 0 && (
+                              <div className="space-y-3">
+                                {accounts.length > 0 && (
+                                  <p className="text-sm text-gray-500">Want another account to pay into?</p>
+                                )}
+                                {missing.map((provider) => (
+                                  <button
+                                    key={provider}
+                                    onClick={() => generateAccount(provider)}
+                                    disabled={processing}
+                                    className={`px-8 py-3 rounded-xl font-semibold disabled:opacity-50 transition-all flex items-center justify-center gap-2 mx-auto ${
+                                      accounts.length > 0
+                                        ? "border border-blue-600 text-blue-600 hover:bg-blue-50"
+                                        : "bg-blue-600 text-white hover:bg-blue-700"
+                                    }`}
+                                  >
+                                    {generating === provider ? (
+                                      <>
+                                        <Loader2 className="h-5 w-5 animate-spin" />
+                                        Generating...
+                                      </>
+                                    ) : (
+                                      `Generate ${PROVIDER_LABELS[provider] || provider} Account`
+                                    )}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </>
+                        );
+                      })()}
                     </div>
                   )}
 

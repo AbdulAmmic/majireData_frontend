@@ -2,13 +2,14 @@
 
 import { API_BASE_URL } from "@/config";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Mail,
   Lock,
   User,
   Phone,
+  Gift,
   Eye,
   EyeOff,
   ChevronRight,
@@ -38,8 +39,20 @@ export default function AuthPage() {
     lastName: "",
     resetToken: "",
     newPassword: "",
-    confirmNewPassword: ""
+    confirmNewPassword: "",
+    referralCode: ""
   });
+
+  // Arriving from a share link (/?ref=CODE): remember the code and open the sign-up tab.
+  useEffect(() => {
+    try {
+      const ref = new URLSearchParams(window.location.search).get("ref");
+      if (ref) {
+        setFormData(prev => ({ ...prev, referralCode: ref.trim().toUpperCase().slice(0, 12) }));
+        setAuthMode("signup");
+      }
+    } catch { /* no query string available */ }
+  }, []);
 
   const [modalConfig, setModalConfig] = useState<{
     isOpen: boolean;
@@ -84,7 +97,8 @@ export default function AuthPage() {
           full_name: `${formData.firstName} ${formData.lastName}`.trim(),
           email: formData.email,
           phone: formData.phone,
-          password: formData.password
+          password: formData.password,
+          referral_code: formData.referralCode.trim() || undefined
         };
       } else if (authMode === "forgot-password") {
         endpoint = "/api/auth/forgot-password";
@@ -349,6 +363,27 @@ export default function AuthPage() {
                       required
                       placeholder="0801 234 5678"
                       className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {authMode === "signup" && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Referral Code <span className="text-gray-400 font-normal">(optional)</span>
+                  </label>
+                  <div className="relative">
+                    <Gift className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input
+                      type="text"
+                      name="referralCode"
+                      value={formData.referralCode}
+                      onChange={handleInputChange}
+                      maxLength={12}
+                      autoCapitalize="characters"
+                      placeholder="Invited by a friend? Enter their code"
+                      className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 uppercase placeholder:normal-case focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all"
                     />
                   </div>
                 </div>
