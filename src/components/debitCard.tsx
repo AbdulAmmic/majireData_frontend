@@ -2,8 +2,12 @@ import { useState, useEffect } from "react";
 import { API_BASE_URL } from "@/config";
 import { Wallet, MoreVertical, Copy } from "lucide-react";
 
+const PROVIDER_LABELS: Record<string, string> = { GAFIAPAY: "Gafiapay", PALMPAY: "PalmPay" };
+
 export default function BalanceCard() {
   const [user, setUser] = useState<any>(null);
+  const [accounts, setAccounts] = useState<any[]>([]);
+  const [missing, setMissing] = useState<string[]>([]);
 
   useEffect(() => {
     // 1. Load initial state from local storage
@@ -12,6 +16,8 @@ export default function BalanceCard() {
     if (storedUserStr) {
       initialUser = JSON.parse(storedUserStr);
       setUser(initialUser);
+      // show what we already know straight away; the server answer below replaces it
+      setAccounts(initialUser.virtual_accounts ?? (initialUser.virtual_account ? [initialUser.virtual_account] : []));
     }
 
     // 2. Fetch latest balance from API
@@ -37,8 +43,21 @@ export default function BalanceCard() {
               // Let's use the one from response or stick to existing structure
             }));
 
-            // Optionally update localStorage?
-            // localStorage.setItem("user", JSON.stringify({...initialUser, wallet_balance: ...}));
+            // Every funding account the user has (Gafiapay and/or PalmPay), always fresh from the server
+            const list: any[] = data.data.virtual_accounts ?? (data.data.virtual_account ? [data.data.virtual_account] : []);
+            const offered: string[] = data.data.available_providers ?? [];
+            setAccounts(list);
+            setMissing(offered.filter((p) => !list.some((a) => a.provider === p)));
+
+            // keep the saved copy current so the next visit shows the right accounts immediately
+            try {
+              const saved = JSON.parse(localStorage.getItem("user") || "{}");
+              localStorage.setItem("user", JSON.stringify({
+                ...saved,
+                virtual_accounts: list,
+                virtual_account: list[0] ?? null
+              }));
+            } catch { /* storage unavailable: harmless */ }
           }
         }
       } catch (err) {
@@ -85,25 +104,42 @@ export default function BalanceCard() {
           <p className="text-[10px] font-bold uppercase tracking-widest opacity-60 ml-0.5">{user.full_name}</p>
         </div>
 
-        {user.virtual_account ? (
-          <div className="bg-white/10 border border-white/10 p-3.5 rounded-[1.75rem] backdrop-blur-sm relative overflow-hidden group">
-            <div className="relative z-10">
-              <p className="text-[10px] font-bold uppercase tracking-wider opacity-60 mb-1">{user.virtual_account.bank_name}</p>
-              <div className="flex items-center justify-between">
-                <p className="font-mono text-lg font-bold tracking-wider">{user.virtual_account.account_number}</p>
-                <button
-                  onClick={() => copyToClipboard(user.virtual_account.account_number)}
-                  className="bg-white/20 hover:bg-white/30 p-2 rounded-xl transition-all active:scale-95"
-                >
-                  <Copy className="w-3.5 h-3.5" />
-                </button>
+        {accounts.length > 0 ? (
+          <div className="space-y-2.5">
+            {accounts.map((acct: any) => (
+              <div key={acct.account_number} className="bg-white/10 border border-white/10 p-3.5 rounded-[1.75rem] backdrop-blur-sm relative overflow-hidden group">
+                <div className="relative z-10">
+                  <p className="text-[10px] font-bold uppercase tracking-wider opacity-60 mb-1">
+                    {accounts.length > 1 && acct.provider
+                      ? `${PROVIDER_LABELS[acct.provider] || acct.provider} account · ${acct.bank_name}`
+                      : acct.bank_name}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <p className="font-mono text-lg font-bold tracking-wider">{acct.account_number}</p>
+                    <button
+                      onClick={() => copyToClipboard(acct.account_number)}
+                      className="bg-white/20 hover:bg-white/30 p-2 rounded-xl transition-all active:scale-95"
+                      aria-label="Copy account number"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  <p className="text-[10px] font-medium opacity-50 mt-1 truncate">{acct.account_name}</p>
+                </div>
               </div>
-              <p className="text-[10px] font-medium opacity-50 mt-1 truncate">{user.virtual_account.account_name}</p>
-            </div>
+            ))}
+            {missing.length > 0 && (
+              <a href="/dashboard/fundWallet" className="block text-center text-[11px] font-bold underline underline-offset-2 opacity-80 hover:opacity-100">
+                + Get a {missing.map((p) => PROVIDER_LABELS[p] || p).join(" / ")} account
+              </a>
+            )}
           </div>
         ) : (
-          <div className="text-xs opacity-60 italic py-2">
-            <p>No investment details available.</p>
+          <div className="text-xs py-2">
+            <p className="opacity-60 italic">No funding account yet.</p>
+            <a href="/dashboard/fundWallet" className="inline-block mt-1 font-bold underline underline-offset-2 opacity-90 hover:opacity-100">
+              Generate your account number
+            </a>
           </div>
         )}
       </div>
