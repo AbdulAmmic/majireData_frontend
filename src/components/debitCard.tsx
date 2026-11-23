@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { API_BASE_URL } from "@/config";
 import { Wallet, MoreVertical, Copy } from "lucide-react";
 
-const PROVIDER_LABELS: Record<string, string> = { GAFIAPAY: "Gafiapay", PALMPAY: "PalmPay" };
+const PROVIDER_LABELS: Record<string, string> = { PALMPAY: "PalmPay" };
 
 export default function BalanceCard() {
   const [user, setUser] = useState<any>(null);
@@ -43,7 +43,7 @@ export default function BalanceCard() {
               // Let's use the one from response or stick to existing structure
             }));
 
-            // Every funding account the user has (Gafiapay and/or PalmPay), always fresh from the server
+            // Every funding account the user has (PalmPay), always fresh from the server
             const list: any[] = data.data.virtual_accounts ?? (data.data.virtual_account ? [data.data.virtual_account] : []);
             const offered: string[] = data.data.available_providers ?? [];
             setAccounts(list);

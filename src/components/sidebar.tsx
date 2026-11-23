@@ -16,7 +16,8 @@ import {
   GraduationCap,
   Banknote,
   Gift,
-  MessageCircle
+  MessageCircle,
+  Landmark
 } from "lucide-react";
 
 interface SidebarProps {
@@ -132,6 +133,15 @@ export default function Sidebar({
                   onClick={() => {
                     setActiveView("airtime-cash");
                     handleNavigation("/dashboard/airtime-cash");
+                  }}
+                />
+                <SidebarItem
+                  icon={<Landmark className="w-4 h-4" />}
+                  label="Withdraw"
+                  active={activeView === "withdraw"}
+                  onClick={() => {
+                    setActiveView("withdraw");
+                    handleNavigation("/dashboard/withdraw");
                   }}
                 />
                 <SidebarItem

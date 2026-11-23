@@ -112,6 +112,12 @@ export default function AuthPage() {
         };
       }
 
+      if (authMode === "signup" && !/^[a-z0-9.]+@gmail\.com$/i.test(formData.email.trim())) {
+        showModal("Gmail Only", "Only Gmail addresses (e.g. yourname@gmail.com) can register.", "error");
+        setLoading(false);
+        return;
+      }
+
       if (authMode === "signup" && formData.password !== formData.confirmPassword) {
         alert("Passwords do not match!");
         setLoading(false);

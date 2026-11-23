@@ -8,13 +8,15 @@ import Header from "@/components/header";
 import Link from "next/link";
 import { ChevronRight, ArrowRight, ArrowLeft, Loader2, Phone, ShieldCheck, CheckCircle2, Clock } from "lucide-react";
 import MessageModal from "@/components/messageModal";
+import A2CManual, { ManualNetwork } from "@/components/a2cManual";
 
 type Step = "details" | "otp" | "confirm" | "done";
 
 type Info = {
+    mode: "manual" | "auto";
     enabled: boolean;
     payout_percent: number;
-    networks: Record<string, { min: number; max: number }>;
+    networks: Record<string, ManualNetwork>;
 };
 
 const FALLBACK_LIMITS: Record<string, { min: number; max: number }> = {
@@ -62,7 +64,8 @@ export default function AirtimeToCashPage() {
         { id: "9MOBILE", name: "9Mobile" }
     ];
 
-    const limits = info?.networks ?? FALLBACK_LIMITS;
+    const limits: Record<string, { min: number; max: number }> = info?.networks ?? FALLBACK_LIMITS;
+    const manual = info?.mode === "manual";
     const payoutPercent = info?.payout_percent ?? 85;
     const amountNum = Number(formData.amount) || 0;
     const youReceive = Math.floor(amountNum * payoutPercent) / 100;
@@ -193,13 +196,17 @@ export default function AirtimeToCashPage() {
                         <div className="bg-blue-600 rounded-2xl p-8 text-white h-fit">
                             <h2 className="text-2xl font-bold mb-4">How it works</h2>
                             <div className="space-y-6">
-                                {[
+                                {(manual ? [
+                                    ["1", "Choose network and amount", "See our number for that network and exactly what you'll receive."],
+                                    ["2", "Send the airtime", "Transfer the airtime from your phone to our number."],
+                                    ["3", "Submit and get paid", "Tell us the number you sent from. Once we confirm it arrived, your wallet is credited."]
+                                ] : [
                                     ["1", "Enter your details", "Pick the network, the amount and the phone number the airtime is on."],
                                     ["2", "Confirm by SMS", "We text a code to that phone. Enter it to prove the number is yours."],
                                     ["3", "Convert", "Enter your SIM's airtime-transfer PIN. The airtime is moved automatically and your wallet is credited instantly."]
-                                ].map(([n, title, text]) => (
+                                ]).map(([n, title, text]) => (
                                     <div key={n} className="flex gap-4">
-                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold flex-shrink-0 ${Number(n) === stepNumber ? "bg-white text-blue-600" : "bg-white/20"}`}>{n}</div>
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold flex-shrink-0 ${!manual && Number(n) === stepNumber ? "bg-white text-blue-600" : "bg-white/20"}`}>{n}</div>
                                         <div>
                                             <h3 className="font-semibold text-lg">{title}</h3>
                                             <p className="text-blue-100 text-sm mt-1">{text}</p>
@@ -208,13 +215,24 @@ export default function AirtimeToCashPage() {
                                 ))}
                             </div>
                             <div className="mt-8 bg-white/10 rounded-xl p-4 text-sm space-y-1">
-                                <p>You receive <span className="font-bold">{payoutPercent}%</span> of the airtime you convert.</p>
-                                <p className="text-blue-100 flex items-center gap-2"><ShieldCheck className="w-4 h-4" /> Your SIM PIN is used once and never stored.</p>
+                                {manual ? (
+                                    <p>Rates: {Object.values(info?.networks ?? {}).filter((n) => n.enabled).map((n) => `${n.network} ${n.rate_percent}%`).join(" · ") || "—"}</p>
+                                ) : (
+                                    <>
+                                        <p>You receive <span className="font-bold">{payoutPercent}%</span> of the airtime you convert.</p>
+                                        <p className="text-blue-100 flex items-center gap-2"><ShieldCheck className="w-4 h-4" /> Your SIM PIN is used once and never stored.</p>
+                                    </>
+                                )}
                             </div>
                         </div>
 
                         {/* FORM */}
                         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                            {!info ? (
+                                <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-blue-600" /></div>
+                            ) : manual ? (
+                                <A2CManual networks={info.networks} onMessage={showMessage} />
+                            ) : (<>
                             {info && !info.enabled && (
                                 <div className="mb-6 p-4 bg-yellow-50 text-yellow-800 rounded-xl text-sm">
                                     Airtime to Cash is not available right now. Please check back later.
@@ -230,7 +248,7 @@ export default function AirtimeToCashPage() {
                                             <label className="block text-sm font-medium text-gray-700 mb-1">Network</label>
                                             <select name="network" value={formData.network} onChange={handleInputChange} className={inputClass} required>
                                                 <option value="">Select Network</option>
-                                                {networks.map((n) => (
+                                                {networks.filter((n) => !info || info.networks[n.id]?.enabled).map((n) => (
                                                     <option key={n.id} value={n.id}>{n.name}</option>
                                                 ))}
                                             </select>
@@ -343,6 +361,7 @@ export default function AirtimeToCashPage() {
                                     <button onClick={resetAll} className={primaryBtn}>Convert more airtime</button>
                                 </div>
                             )}
+                            </>)}
                         </div>
                     </div>
                 </main>

@@ -58,7 +58,7 @@ export default function FundWalletPage() {
     fetchWalletData();
   }, []);
 
-  const PROVIDER_LABELS: Record<string, string> = { GAFIAPAY: "Gafiapay", PALMPAY: "PalmPay" };
+  const PROVIDER_LABELS: Record<string, string> = { PALMPAY: "PalmPay" };
   const [generating, setGenerating] = useState<string | null>(null);
 
   const generateAccount = async (provider: string) => {
@@ -69,8 +69,7 @@ export default function FundWalletPage() {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const path = provider === "PALMPAY" ? "palmpay" : "gafia";
-      const res = await fetch(`${API_BASE_URL}/api/wallet/dedicated-account/${path}`, {
+      const res = await fetch(`${API_BASE_URL}/api/wallet/dedicated-account/palmpay`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: "{}"
@@ -220,7 +219,7 @@ export default function FundWalletPage() {
 
                       {(() => {
                         const accounts: any[] = walletData?.virtual_accounts ?? (walletData?.virtual_account ? [walletData.virtual_account] : []);
-                        const available: string[] = walletData?.available_providers ?? ["GAFIAPAY"];
+                        const available: string[] = walletData?.available_providers ?? [];
                         const missing = available.filter((p) => !accounts.some((a) => a.provider === p));
 
                         return (

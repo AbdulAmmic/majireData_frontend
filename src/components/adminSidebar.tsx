@@ -1,6 +1,6 @@
 "use client";
 
-import { X, Wallet, User, LogOut, Users, FileText, DollarSign, BarChart2, Shield, MessageSquare } from "lucide-react";
+import { X, Wallet, User, LogOut, Users, FileText, DollarSign, BarChart2, Shield, MessageSquare, Banknote, Landmark } from "lucide-react";
 import SidebarItem from "./sidebarItem";
 
 interface SidebarProps {
@@ -71,6 +71,24 @@ export default function AdminSidebar({
                         onClick={() => {
                             setActiveView("complaints");
                             handleNavigation("/admin/complaints");
+                        }}
+                    />
+                    <SidebarItem
+                        icon={<Banknote className="w-4 h-4" />}
+                        label="Airtime to Cash"
+                        active={activeView === "airtime-cash"}
+                        onClick={() => {
+                            setActiveView("airtime-cash");
+                            handleNavigation("/admin/airtime-cash");
+                        }}
+                    />
+                    <SidebarItem
+                        icon={<Landmark className="w-4 h-4" />}
+                        label="Withdrawals"
+                        active={activeView === "withdrawals"}
+                        onClick={() => {
+                            setActiveView("withdrawals");
+                            handleNavigation("/admin/withdrawals");
                         }}
                     />
                     <SidebarItem
