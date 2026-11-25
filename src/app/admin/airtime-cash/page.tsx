@@ -30,6 +30,24 @@ type A2CRequest = {
     created_at: string;
 };
 
+// Same rules as the server (utils/airtimetocash.normalize_phone): 0803..., 803..., +234803..., +2340803...
+const normalizePhone = (raw: string): string | null => {
+    let d = (raw || "").replace(/\D/g, "");
+    if (d.startsWith("2340") && d.length === 14) d = d.slice(3);
+    else if (d.startsWith("234") && d.length === 13) d = "0" + d.slice(3);
+    else if (d.length === 10 && "789".includes(d[0])) d = "0" + d;
+    return /^0[789][01]\d{8}$/.test(d) ? d : null;
+};
+
+function rowProblem(n: NetworkSetting): string | null {
+    if (n.collection_phone && !normalizePhone(n.collection_phone)) return "Enter a valid Nigerian number, e.g. 08031234567";
+    if (!(n.rate_percent >= 1 && n.rate_percent <= 100)) return "Rate is the % the customer receives: 1 to 100 (e.g. 85)";
+    if (!Number.isInteger(n.min) || n.min < 50) return "Min must be a whole amount of at least ₦50";
+    if (!Number.isInteger(n.max) || n.max < n.min) return "Max must be bigger than min";
+    if (n.max > 500000) return "Max can't be more than ₦500,000";
+    return null;
+}
+
 const naira = (n: number) => `₦${Number(n || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
 
 async function api(path: string, method = "GET", body?: unknown) {
@@ -49,6 +67,7 @@ export default function AdminAirtimeCashPage() {
     const [nets, setNets] = useState<NetworkSetting[]>([]);
     const [saving, setSaving] = useState(false);
     const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
+    const [rowErrors, setRowErrors] = useState<Record<string, string>>({});
 
     const [status, setStatus] = useState("PENDING");
     const [requests, setRequests] = useState<A2CRequest[]>([]);
@@ -71,12 +90,21 @@ export default function AdminAirtimeCashPage() {
     useEffect(() => { loadSettings(); }, [loadSettings]);
     useEffect(() => { loadRequests(); }, [loadRequests]);
 
-    const edit = (network: string, patch: Partial<NetworkSetting>) =>
+    const edit = (network: string, patch: Partial<NetworkSetting>) => {
         setNets((ns) => ns.map((n) => (n.network === network ? { ...n, ...patch } : n)));
+        setRowErrors((e) => { const c = { ...e }; delete c[network]; return c; });
+    };
 
     const save = async () => {
-        setSaving(true);
         setNotice(null);
+        const local: Record<string, string> = {};
+        nets.forEach((n) => { const p = rowProblem(n); if (p) local[n.network] = p; });
+        if (Object.keys(local).length) {
+            setRowErrors(local);
+            setNotice({ ok: false, text: `Fix the highlighted ${Object.keys(local).length === 1 ? "row" : "rows"} first.` });
+            return;
+        }
+        setSaving(true);
         const r = await api("airtime-cash/settings", "PUT", {
             mode,
             networks: nets.map((n) => ({
@@ -85,8 +113,12 @@ export default function AdminAirtimeCashPage() {
             })),
         });
         setSaving(false);
-        setNotice({ ok: r.ok, text: r.ok ? "Settings saved. Customers see them straight away." : r.message });
-        if (r.ok) { setNets(r.data.networks); setMode(r.data.mode); }
+        if (!r.ok) { setNotice({ ok: false, text: r.message }); return; }
+        setNets(r.data.networks);
+        setMode(r.data.mode);
+        setRowErrors({ ...(r.data.notes || {}), ...(r.data.problems || {}) });
+        const hasProblems = Object.keys(r.data.problems || {}).length > 0;
+        setNotice({ ok: !hasProblems, text: hasProblems ? r.message : `${r.message}. Customers see the changes straight away.` });
     };
 
     const act = async (req: A2CRequest, action: "approve" | "reject") => {
@@ -147,19 +179,24 @@ export default function AdminAirtimeCashPage() {
                                 <tr key={n.network} className="border-b last:border-0">
                                     <td className="py-3 pr-3 font-medium text-gray-900">{n.network}</td>
                                     <td className="py-3 pr-3">
-                                        <input type="checkbox" checked={n.switched_on} onChange={(e) => edit(n.network, { switched_on: e.target.checked })} className="w-4 h-4" />
+                                        <input type="checkbox" checked={n.switched_on}
+                                            disabled={mode === "manual" && !n.switched_on && !normalizePhone(n.collection_phone || "")}
+                                            title={mode === "manual" && !normalizePhone(n.collection_phone || "") ? "Add a collection number first" : ""}
+                                            onChange={(e) => edit(n.network, { switched_on: e.target.checked })} className="w-4 h-4 disabled:opacity-40" />
                                     </td>
                                     <td className="py-3 pr-3 min-w-[160px]">
-                                        <input value={n.collection_phone || ""} onChange={(e) => edit(n.network, { collection_phone: e.target.value })} className={input} placeholder="0803..." />
+                                        <input value={n.collection_phone || ""} onChange={(e) => edit(n.network, { collection_phone: e.target.value, ...(normalizePhone(e.target.value) || mode !== "manual" ? {} : { switched_on: false }) })}
+                                            className={`${input} ${n.collection_phone && !normalizePhone(n.collection_phone) ? "border-red-400" : ""}`} placeholder="08031234567" />
+                                        {rowErrors[n.network] && <p className="text-xs text-red-600 mt-1">{rowErrors[n.network]}</p>}
                                     </td>
                                     <td className="py-3 pr-3 w-24">
-                                        <input type="number" min={1} max={100} step="0.5" value={n.rate_percent} onChange={(e) => edit(n.network, { rate_percent: Number(e.target.value) })} className={input} />
+                                        <input type="number" min={1} max={100} step="0.5" value={Number.isNaN(n.rate_percent) ? "" : n.rate_percent} onChange={(e) => edit(n.network, { rate_percent: e.target.value === "" ? NaN : Number(e.target.value) })} className={input} />
                                     </td>
                                     <td className="py-3 pr-3 w-28">
-                                        <input type="number" value={n.min} onChange={(e) => edit(n.network, { min: Number(e.target.value) })} className={input} />
+                                        <input type="number" value={Number.isNaN(n.min) ? "" : n.min} onChange={(e) => edit(n.network, { min: e.target.value === "" ? NaN : Number(e.target.value) })} className={input} />
                                     </td>
                                     <td className="py-3 pr-3 w-32">
-                                        <input type="number" value={n.max} onChange={(e) => edit(n.network, { max: Number(e.target.value) })} className={input} />
+                                        <input type="number" value={Number.isNaN(n.max) ? "" : n.max} onChange={(e) => edit(n.network, { max: e.target.value === "" ? NaN : Number(e.target.value) })} className={input} />
                                     </td>
                                 </tr>
                             ))}
