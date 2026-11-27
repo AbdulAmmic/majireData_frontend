@@ -20,6 +20,7 @@ export default function AdminLayout({
         if (pathname.includes("/users")) setActiveView("users");
         else if (pathname.includes("/airtime-cash")) setActiveView("airtime-cash");
         else if (pathname.includes("/withdrawals")) setActiveView("withdrawals");
+        else if (pathname.includes("/deposits")) setActiveView("deposits");
         else if (pathname.includes("/transactions")) setActiveView("transactions");
         else if (pathname.includes("/pricing")) setActiveView("pricing");
         else setActiveView("dashboard");

@@ -1,6 +1,6 @@
 "use client";
 
-import { X, Wallet, User, LogOut, Users, FileText, DollarSign, BarChart2, Shield, MessageSquare, Banknote, Landmark } from "lucide-react";
+import { X, Wallet, User, LogOut, Users, FileText, DollarSign, BarChart2, Shield, MessageSquare, Banknote, Landmark, Inbox } from "lucide-react";
 import SidebarItem from "./sidebarItem";
 
 interface SidebarProps {
@@ -89,6 +89,15 @@ export default function AdminSidebar({
                         onClick={() => {
                             setActiveView("withdrawals");
                             handleNavigation("/admin/withdrawals");
+                        }}
+                    />
+                    <SidebarItem
+                        icon={<Inbox className="w-4 h-4" />}
+                        label="Deposits"
+                        active={activeView === "deposits"}
+                        onClick={() => {
+                            setActiveView("deposits");
+                            handleNavigation("/admin/deposits");
                         }}
                     />
                     <SidebarItem
